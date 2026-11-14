@@ -16,6 +16,7 @@ vi.mock("react-leaflet", async () => {
     Popup: () => null,
     Tooltip: () => null,
     CircleMarker: () => null,
+    Circle: () => null,
     useMap: () => ({ fitBounds: () => {} }),
   };
 });
