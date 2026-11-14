@@ -24,8 +24,8 @@ import {
   riskState,
   riskStatusText,
 } from "./utils/riskFormat";
-import { MapContainer, TileLayer, CircleMarker, Circle, Marker, Popup, Tooltip, Pane, Polygon, useMap } from "react-leaflet";
-import { divIcon, latLngBounds } from "leaflet";
+import { MapContainer, TileLayer, CircleMarker, Circle, Marker, Popup, Tooltip, useMap } from "react-leaflet";
+import { divIcon } from "leaflet";
 import { RISK_ZONE_RADIUS_M, riskZoneStyle } from "./utils/riskZone";
 import "leaflet/dist/leaflet.css";
 import { explainFactors } from "./utils/riskExplanation";
@@ -33,14 +33,6 @@ import { sortAreasByRisk } from "./utils/riskFormat";
 import RiskLegend from "./components/RiskLegend";
 import AshDetective from "./components/AshDetective";
 import { clusterDetections, MapZoomObserver } from "./components/DetectionClusters";
-import canadaBoundary from "./data/canadaBoundary.json";
-
-// Cover every tile outside the actual Canadian land boundary. Islands are retained.
-const canadaHoles = canadaBoundary.features[0].geometry.coordinates.map((polygon) => polygon[0].map(([lng, lat]) => [lat, lng]));
-const outsideCanadaMask = [
-  [[-85, -180], [-85, 180], [85, 180], [85, -180]],
-  ...canadaHoles,
-];
 
 const fireMarkerIcon = (lowConfidence) => divIcon({
   className: "ew-fire-marker-wrap",
@@ -427,9 +419,6 @@ function App() {
             />
 
             <FitToAreas areas={riskAreas} />
-            <Pane name="canada-only-mask" style={{ zIndex: 350, pointerEvents: "none" }}>
-              <Polygon positions={outsideCanadaMask} interactive={false} pathOptions={{ stroke: false, fillColor: "#1b252a", fillOpacity: 1, fillRule: "evenodd" }} />
-            </Pane>
 
             {searchedPlace && <CircleMarker center={[searchedPlace.latitude, searchedPlace.longitude]} radius={11} pathOptions={{color:"#ffb36c",fillColor:"#ff7843",fillOpacity:0.8,weight:3}}><Tooltip permanent direction="top"><strong>{searchedPlace.name}</strong><br />Selected location</Tooltip></CircleMarker>}
             {/* Draw non-interactive risk zones below clickable area and detection markers. */}
