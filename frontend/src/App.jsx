@@ -304,7 +304,8 @@ function App() {
         </p>
       )}
 
-      <div className="ew-data-notes"><button type="button" className="ew-data-notes-toggle" aria-expanded={showDataNotes} onClick={() => setShowDataNotes((open) => !open)}>{showDataNotes ? "Hide data details −" : "Data dates & details +"}</button>{showDataNotes && <div className="ew-data-notes-content"><DataFreshness areas={riskAreas} detections={detectionResult?.detections} /></div>}</div>
+      <DataFreshness areas={riskAreas} detections={detectionResult?.detections} />
+      <div className="ew-data-notes"><button type="button" className="ew-data-notes-toggle" aria-expanded={showDataNotes} onClick={() => setShowDataNotes((open) => !open)}>{showDataNotes ? "Hide data details −" : "Data dates & details +"}</button>{showDataNotes && <div className="ew-data-notes-content"><p>Satellite detections and risk scores are separate measurements. Review timestamps and data warnings above before interpreting the map.</p></div>}</div>
 
       {showDataNotes && detectionResult && !detectionLoading && (
         <div className="ew-data-summary" role="status">
