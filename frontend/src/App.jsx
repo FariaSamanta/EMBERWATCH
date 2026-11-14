@@ -201,6 +201,12 @@ function App() {
   const factors = selectedArea?.environmental_factors ?? {};
   const filteredAreas = sortAreasByRisk(riskAreas)
     .filter((area) => (area.name ?? `Area ${area.id}`).toLowerCase().includes(search.trim().toLowerCase()));
+  function navigateTo(nextPage) {
+    setPage(nextPage);
+    setReporting(false);
+    setMenuOpen(false);
+  }
+
   function selectArea(area) {
     setPage("explore");
     setSelectedArea(area);
@@ -219,16 +225,16 @@ function App() {
       <header className="ew-header">
         <div className="ew-header-left">
         {page === "explore" && view !== "dashboard" && <button className="ew-nav-back" type="button" onClick={() => { if(view === "risk") {setView("information");setShowFullDetails(false);} else {setView("dashboard");setSelectedArea(null);} }}>← Back</button>}
-        <button type="button" className="ew-brand ew-brand-button" aria-label="Go to EmberWatch home" onClick={() => {setPage("home");setView("dashboard");setMenuOpen(false);}}>
+        <button type="button" className="ew-brand ew-brand-button" aria-label="Go to EmberWatch home" onClick={() => {navigateTo("home");setView("dashboard");}}>
         <span className="ew-brand-icon" aria-hidden="true">🔥</span>
         <span>EMBER<span className="ew-brand-accent">WATCH</span>
         </span>
         </button>
         </div>
         <nav className="ew-top-nav" aria-label="Main navigation">
-          <button type="button" aria-current={page === "home" ? "page" : undefined} onClick={() => setPage("home")}>Home</button>
-          <button type="button" aria-current={page === "explore" ? "page" : undefined} onClick={() => setPage("explore")}>Explore map</button>
-          <button type="button" aria-current={page === "learn" ? "page" : undefined} onClick={() => setPage("learn")}>Understand risk</button>
+          <button type="button" aria-current={page === "home" ? "page" : undefined} onClick={() => navigateTo("home")}>Home</button>
+          <button type="button" aria-current={page === "explore" ? "page" : undefined} onClick={() => navigateTo("explore")}>Explore map</button>
+          <button type="button" aria-current={page === "learn" ? "page" : undefined} onClick={() => navigateTo("learn")}>Understand risk</button>
         </nav>
         <div className="ew-menu-wrap" ref={menuRef}>
           <button type="button" className="ew-menu-toggle" aria-label="More options" aria-expanded={menuOpen} aria-controls="ew-navigation" onClick={() => setMenuOpen((open) => !open)}>
@@ -236,9 +242,9 @@ function App() {
           </button>
           {menuOpen && <nav id="ew-navigation" className="ew-navigation" aria-label="Map settings">
             <strong>More options</strong>
-            <button type="button" onClick={() => { setPage("learn"); setMenuOpen(false); }}>How risk works</button>
+            <button type="button" onClick={() => { navigateTo("learn"); }}>How risk works</button>
             <button type="button" onClick={() => { setSelectedArea(null); setShowFullDetails(false); setView("dashboard"); setMenuOpen(false); }}>Reset map selection</button>
-            <button type="button" onClick={() => { setReporting(true); setMenuOpen(false); }}>Report a Fire {REPORTS_ENABLED ? "" : "(preview)"}</button>
+            <button type="button" onClick={() => { setPage("explore"); setReporting(true); setMenuOpen(false); }}>Report a Fire {REPORTS_ENABLED ? "" : "(preview)"}</button>
             <p>EmberWatch is an educational risk explorer, not an emergency alert service.</p>
           </nav>}
         </div>
@@ -263,10 +269,10 @@ function App() {
         </div>
 
       <div className="ew-dashboard-tools">
-      {/* #51: public fire reports. Not an emergency service. */}
-      {reporting && <ReportFire onClose={() => setReporting(false)} />}
-
+        <button type="button" className="ew-report-cta" aria-expanded={reporting} onClick={() => setReporting((open) => !open)}>{reporting ? "Close fire report" : "Report a fire"} <span aria-hidden="true">{reporting ? "×" : "↗"}</span></button>
+        <span className="ew-report-disclaimer">For emergencies, call local emergency services.</span>
       </div>
+      {reporting && <div className="ew-report-panel"><ReportFire onClose={() => setReporting(false)} /></div>}
 
       {loading && (
         <p>Loading wildfire risk data...</p>
