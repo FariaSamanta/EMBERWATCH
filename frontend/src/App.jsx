@@ -611,7 +611,7 @@ function App() {
             </>
           )}
         </div></aside></div>
-      </div></div></main>
+      </div></div></div></main>
       <AshDetective areas={riskAreas} detections={detectionResult?.detections ?? []} selectedArea={selectedArea} searchedPlace={searchedPlace} />
     </div>
   );
