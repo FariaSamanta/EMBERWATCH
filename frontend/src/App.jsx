@@ -60,9 +60,14 @@ function FitToAreas({ areas }) {
 function FocusSelected({ area }) {
   const map = useMap();
   useEffect(() => {
-    if (!area || !map.getBounds) return;
+    if (!area || !Number.isFinite(area.latitude) || !Number.isFinite(area.longitude)) return;
     const point = [area.latitude, area.longitude];
-    if (!map.getBounds().contains(point)) map.panTo(point);
+    // Always focus a selected search result; preserve the existing pan-only test map.
+    if (typeof map.flyTo === "function") {
+      map.flyTo(point, Math.max(map.getZoom?.() ?? 6, 10), { animate: true, duration: 0.9 });
+    } else if (map.getBounds && !map.getBounds().contains(point)) {
+      map.panTo(point);
+    }
   }, [map, area]);
   return null;
 }
@@ -327,8 +332,8 @@ function App() {
                     },
                   }}
                 >
-                  <Tooltip>
-                    {area.name ?? `Area ${area.id}`}: {riskStatusText(area)}
+                  <Tooltip permanent={selectedArea?.id === area.id} direction="top" offset={[0, -12]} className={selectedArea?.id === area.id ? "ew-selected-tooltip" : ""}>
+                    <strong>{area.name ?? `Area ${area.id}`}</strong>{selectedArea?.id === area.id ? <><br />Risk: {riskStatusText(area)}{validRiskScore(area) ? ` · ${area.risk_score.toFixed(1)}/100` : ""}</> : `: ${riskStatusText(area)}`}
                   </Tooltip>
                </CircleMarker>  
              );
@@ -380,9 +385,10 @@ function App() {
       
         <aside className="ew-side-panel">
           <div className="ew-panel-top">
-          <div className="ew-locations-heading"><h2>Explore locations</h2><span className="ew-section-meta">{riskAreas.length} areas</span></div>
+          <div className="ew-locations-heading"><h2>Search & explore</h2><span className="ew-section-meta">{riskAreas.length} areas</span></div>
           <label className="ew-search-label" htmlFor="ew-area-search">Search monitored areas</label>
-          <input id="ew-area-search" type="search" placeholder="Search location..." value={search} onChange={(event) => setSearch(event.target.value)} />
+          <input id="ew-area-search" type="search" placeholder="Search city or monitored area..." value={search} onChange={(event) => { setSearch(event.target.value); if (view !== "dashboard") setView("dashboard"); }} onKeyDown={(event) => { if (event.key === "Enter" && filteredAreas.length > 0) selectArea(filteredAreas[0]); }} />
+          {search.trim() && <p className="ew-search-count">{filteredAreas.length} matching monitored {filteredAreas.length === 1 ? "area" : "areas"} · Press Enter to zoom to first result</p>}
           <nav className="ew-area-list" aria-label="Monitored areas">
           {filteredAreas.map((area) => <button type="button" aria-pressed={selectedArea?.id === area.id} className={`ew-area-row ${selectedArea?.id === area.id ? "is-selected" : ""}`} key={area.id} onClick={() => selectArea(area)}>
           <span className="ew-area-name">
@@ -394,6 +400,7 @@ function App() {
           <span aria-hidden="true">›</span>
           </button>)}{filteredAreas.length === 0 && <p className="ew-empty-search">No matching monitored areas.</p>}
           </nav>
+          <p className="ew-search-footnote">Risk assessments are available for monitored areas only; searching does not generate new risk predictions.</p>
           </div>
           <div ref={detailsRef} tabIndex={-1} className="ew-detail-panel" aria-label="Area details">
           {!selectedArea ? (
