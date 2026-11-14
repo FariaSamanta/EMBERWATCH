@@ -150,10 +150,14 @@ describe("Wildfire risk map", () => {
     expect(screen.getByText(/Nearby Fire Detections:/).parentElement)
       .toHaveTextContent("2");
 
+    expect(screen.queryByRole("heading", { name: "How the risk estimate is calculated" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /View Risk Details/i }));
     expect(screen.getByRole("heading", { name: "How the risk estimate is calculated" })).toBeInTheDocument();
     expect(screen.getByLabelText("Risk factor explanations")).toHaveTextContent("Slope (5% base weight): Unavailable");
     expect(screen.getByLabelText("Risk factor explanations")).toHaveTextContent("Nearby Fire Detections (25% base weight)");
     expect(screen.getByText(/not a validated real-time fire forecast/i)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /Back to Fire Information/i }));
+    expect(screen.queryByRole("heading", { name: "How the risk estimate is calculated" })).not.toBeInTheDocument();
 
     expect(screen.getByText(/Some inputs are missing/i))
       .toBeInTheDocument();
