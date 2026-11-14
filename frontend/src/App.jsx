@@ -200,7 +200,7 @@ function App() {
         <div className="ew-header-left">
         {view !== "dashboard" && <button className="ew-nav-back" type="button" onClick={() => { if(view === "risk") {setView("information");setShowFullDetails(false);} else {setView("dashboard");setSelectedArea(null);} }}>← Back</button>}
         <div className="ew-brand">
-        <span className="ew-brand-icon" aria-hidden="true">♨</span>
+        <span className="ew-brand-icon" aria-hidden="true">🔥</span>
         <span>EMBER<span className="ew-brand-accent">WATCH</span>
         </span>
         </div>
@@ -211,10 +211,7 @@ function App() {
           </button>
           {menuOpen && <nav id="ew-navigation" className="ew-navigation" aria-label="Map settings">
             <strong>Map preferences</strong>
-            <label className="ew-settings-option">
-              <input type="checkbox" checked={showZones} onChange={(event) => setShowZones(event.target.checked)} />
-              Show 50 km risk zones
-            </label>
+            <p className="ew-settings-note">Risk-zone visibility is controlled from the map toolbar.</p>
             <button type="button" onClick={() => { setSelectedArea(null); setShowFullDetails(false); setView("dashboard"); setMenuOpen(false); }}>Reset map selection</button>
             <button type="button" onClick={() => { setReporting(true); setMenuOpen(false); }}>Report a Fire {REPORTS_ENABLED ? "" : "(preview)"}</button>
             <p>EmberWatch is an educational risk explorer, not an emergency alert service.</p>
@@ -224,12 +221,12 @@ function App() {
       <main className="ew-main">
         <div className="ew-page-heading">
         <div>
-        <span className="ew-eyebrow">WILDFIRE MONITORING</span>
+        <span className="ew-eyebrow"><span className="ew-live-ember" aria-hidden="true" /> WILDFIRE INTELLIGENCE · CANADA</span>
         <h1>
-        {view === "dashboard" ? "Explore wildfire activity" : "Area assessment"}
+        {view === "dashboard" ? "Wildfire intelligence, in focus." : "Area assessment"}
         </h1>
         <p>
-        {view === "dashboard" ? "Explore monitored locations and satellite observations across Canada." : "Risk assessment and environmental conditions"}
+        {view === "dashboard" ? "Explore satellite detections and environmental risk across monitored locations." : "Risk assessment and environmental conditions"}
         </p>
         </div>
         </div>
@@ -286,7 +283,8 @@ function App() {
       )}
 
       <div className="ew-workspace">
-        <div className="ew-map-column"><div className="ew-map-frame">
+        <div className="ew-ember-field" aria-hidden="true"><i /><i /><i /><i /><i /><i /><i /><i /></div>
+        <div className="ew-map-column"><div className="ew-map-title"><span className="ew-map-title-dot" /> LIVE MAP <span className="ew-map-title-caption">MONITORED REGIONS</span></div><div className="ew-map-frame">
           <MapContainer
             center={[45.4, -77.5]}
             zoom={7}
@@ -450,10 +448,10 @@ function App() {
                   {Object.entries(factorLabels).map(([key, label]) => {
                     const value = factors[key];
                     const available = value !== null && value !== undefined && Number.isFinite(value);
-                    return <div className="ew-factor-row" key={key}><span>{label}</span><strong>{available ? `${value}${factorUnits[key] ? ` ${factorUnits[key]}` : ""}` : "Unavailable"}</strong></div>;
+                    return <div className="ew-factor-row" key={key}><span>{label}:</span><strong>{available ? `${value}${factorUnits[key] ? ` ${factorUnits[key]}` : ""}` : "Unavailable"}</strong></div>;
                   })}
                 </div>
-                {selectedArea.missing_inputs?.length > 0 && <p>Missing: {missingInputNames(selectedArea).join(", ")}</p>}
+                {selectedArea.missing_inputs?.length > 0 && <p>Missing inputs: {missingInputNames(selectedArea).join(", ")}</p>}
                 <p>These environmental factors contribute to an experimental risk estimate, not a confirmed fire.</p>
               </details>
 
