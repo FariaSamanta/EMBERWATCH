@@ -1185,3 +1185,50 @@
 .ew-detection-details p { font-size:14px; line-height:1.55; }
 .ew-detection-details strong { color:#ffbc91; }
 .ew-fire-marker-wrap { cursor:pointer; }
+
+
+/* Map-first explorer: weather-map-inspired layout without copying another product. */
+.ew-app:has(.ew-explore-page:not(.ew-page-hidden)) .ew-main { max-width:none; padding:12px clamp(12px,1.5vw,24px) 30px; }
+.ew-explore-page .ew-page-heading { margin:0 0 9px; }
+.ew-explore-page .ew-page-heading h1 { font-size:clamp(24px,2.5vw,32px); letter-spacing:-.025em; }
+.ew-explore-page .ew-page-heading p { margin:3px 0 0; font-size:12px; }
+.ew-explore-page .ew-dashboard-tools { margin:0 0 9px; gap:10px; }
+.ew-explore-page .ew-report-cta { padding:8px 12px; font-size:12px; border-radius:8px; box-shadow:none; }
+.ew-explore-page .ew-report-disclaimer { font-size:11px; }
+.ew-map-first { grid-template-columns:minmax(0,1fr) minmax(280px,330px); gap:10px!important; align-items:stretch; }
+.ew-map-first .ew-map-column { display:flex; flex-direction:column; padding:8px; border-radius:12px; }
+.ew-map-first .ew-map-frame { flex:1; height:min(75vh,850px); min-height:520px; border:0; border-radius:8px; }
+.ew-map-first .ew-map-title { padding:6px 9px; font-size:12px; letter-spacing:.05em; }
+.ew-map-first .ew-map-title-caption { font-size:11px; font-weight:400; letter-spacing:0; }
+.ew-map-first .ew-map-controls { display:flex; align-items:center; flex-wrap:wrap; gap:9px 18px; padding:8px 10px; font-size:11px; }
+.ew-map-first .ew-map-controls details { margin:0; }
+.ew-map-first .ew-map-controls .ew-legend-disclosure[open] { flex-basis:100%; }
+.ew-map-first .ew-map-controls .legend { display:flex; flex-wrap:wrap; gap:12px; }
+.ew-map-first .ew-map-controls .legend-group { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+.ew-map-first .ew-map-controls .legend-item { white-space:normal; font-size:11px; }
+.ew-map-first .ew-side-panel { border-radius:12px; max-height:min(86vh,940px); overflow-y:auto; }
+.ew-map-first .ew-panel-top { padding:14px; }
+.ew-map-first .ew-locations-heading h2 { font-size:23px; margin:0; }
+.ew-map-first .ew-search-label { margin:9px 0 5px; }
+.ew-map-first .ew-panel-top input { padding:11px 12px; }
+.ew-map-first .ew-detail-panel { padding:14px; }
+.ew-map-first .ew-area-list { max-height:180px; }
+.ew-area-list-toggle { display:flex; width:100%; align-items:center; justify-content:space-between; padding:10px 11px; margin-top:10px; border:1px solid #574238; border-radius:8px; background:#2b2828; color:#f5d8c3; cursor:pointer; font-size:12px; font-weight:650; }
+.ew-area-list-toggle:hover { background:#3c302c; }
+.ew-map-first .ew-detail-panel h2 { font-size:22px; }
+.ew-map-first .ew-search-footnote { margin-top:8px; }
+.ew-explore-page .ew-data-notes { margin:4px 0 8px; }
+.ew-explore-page .ew-data-notes-toggle { font-size:11px; }
+.ew-explore-page .freshness-line { margin:3px 0; }
+@media(max-width:980px) {
+ .ew-map-first { grid-template-columns:1fr; }
+ .ew-map-first .ew-map-frame { height:57vh; min-height:360px; }
+ .ew-map-first .ew-side-panel { max-height:none; }
+}
+@media(max-width:600px) {
+ .ew-app:has(.ew-explore-page:not(.ew-page-hidden)) .ew-main { padding:8px 9px 22px; }
+ .ew-map-first .ew-map-frame { height:52vh; min-height:310px; }
+ .ew-map-first .ew-map-title-caption { display:none; }
+ .ew-explore-page .ew-page-heading p { font-size:11px; }
+ .ew-map-first .ew-map-controls .legend { gap:7px; }
+}
