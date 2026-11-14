@@ -82,12 +82,15 @@ function FocusSelected({ area }) {
   return null;
 }
 
-function RefreshMapLayout({ active }) {
+function RefreshMapLayout({ active, hasSelection }) {
   const map = useMap();
   useEffect(() => {
     if (active) {
       map.invalidateSize?.();
-      const frame = requestAnimationFrame(() => map.invalidateSize?.());
+      const frame = requestAnimationFrame(() => {
+        map.invalidateSize?.();
+        if (!hasSelection) map.setView?.([54.5, -119], 6, { animate: false });
+      });
       return () => cancelAnimationFrame(frame);
     }
   }, [map, active]);
@@ -114,7 +117,7 @@ function App() {
   const [showAreaList, setShowAreaList] = useState(false);
   const [mapLayer, setMapLayer] = useState("both");
   const [mapControlsOpen, setMapControlsOpen] = useState(true);
-  const [mapZoom, setMapZoom] = useState(7);
+  const [mapZoom, setMapZoom] = useState(6);
   const [clusterZoomTarget, setClusterZoomTarget] = useState(null);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(true);
@@ -410,7 +413,7 @@ function App() {
             minZoom={3}
             style={{ height: "100%", width: "100%" }}
           >
-            <RefreshMapLayout active={page === "explore"} />
+            <RefreshMapLayout active={page === "explore"} hasSelection={Boolean(searchedPlace || selectedArea)} />
             <MapZoomObserver onZoom={setMapZoom} zoomTarget={clusterZoomTarget} />
             <FocusSelected area={searchedPlace ?? selectedArea} />
             <TileLayer
