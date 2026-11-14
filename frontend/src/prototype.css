@@ -1320,3 +1320,18 @@
 @media(prefers-reduced-motion:reduce) {
  .ew-map-first .leaflet-marker-icon, .ew-map-first .leaflet-interactive, .ew-map-first .ew-side-panel { transition:none; }
 }
+
+
+/* Critical map visibility fix: explicit Leaflet viewport sizing and stacking. */
+.ew-explore-page:not(.ew-page-hidden) .ew-workspace.ew-map-first { position:relative; display:block!important; width:100%; min-height:0!important; isolation:isolate; }
+.ew-explore-page:not(.ew-page-hidden) .ew-map-first .ew-map-column { position:relative; display:block!important; width:100%; height:clamp(520px,76dvh,880px); min-height:0!important; overflow:visible; }
+.ew-explore-page:not(.ew-page-hidden) .ew-map-first .ew-map-frame { position:relative; display:block!important; flex:none!important; width:100%; height:100%!important; min-height:0!important; overflow:hidden; background:#273339; z-index:0; }
+.ew-explore-page:not(.ew-page-hidden) .ew-map-first .ew-map-frame > .leaflet-container { display:block!important; position:relative; width:100%!important; height:100%!important; min-height:420px; z-index:0; }
+.ew-explore-page:not(.ew-page-hidden) .ew-ember-field { pointer-events:none; z-index:-1; }
+.ew-explore-page:not(.ew-page-hidden) .ew-map-first .ew-map-title { z-index:500; }
+.ew-explore-page:not(.ew-page-hidden) .ew-map-first .ew-map-controls { z-index:550; }
+.ew-explore-page:not(.ew-page-hidden) .ew-map-first .ew-side-panel { z-index:600; }
+@media(max-width:600px) {
+ .ew-explore-page:not(.ew-page-hidden) .ew-map-first .ew-map-column { height:max(480px,calc(100dvh - 170px)); }
+ .ew-explore-page:not(.ew-page-hidden) .ew-map-first .ew-map-frame > .leaflet-container { min-height:0; }
+}
