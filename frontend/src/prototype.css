@@ -1232,3 +1232,30 @@
  .ew-explore-page .ew-page-heading p { font-size:11px; }
  .ew-map-first .ew-map-controls .legend { gap:7px; }
 }
+
+
+/* Ash Detective — a quiet floating casebook, not another dashboard panel. */
+.ash-shell { position:fixed; right:clamp(12px,2vw,28px); bottom:clamp(12px,2vw,26px); z-index:1200; display:flex; flex-direction:column; align-items:flex-end; gap:11px; font-family:"Source Sans 3",sans-serif; }
+.ash-launcher { display:flex; align-items:center; gap:9px; padding:11px 17px; background:#30251f; color:#ffe8cc; border:1px solid #c48653; border-radius:30px; box-shadow:0 7px 26px #0008; font-size:14px; font-weight:750; cursor:pointer; }
+.ash-launcher:hover { background:#493024; }
+.ash-launcher span:first-child { font-size:22px; }
+.ash-panel { display:flex; flex-direction:column; width:min(370px,calc(100vw - 24px)); height:min(510px,calc(100dvh - 110px)); background:#1c2026; color:#f4e7da; border:1px solid #6d4a34; border-radius:17px; overflow:hidden; box-shadow:0 20px 65px #000a; }
+.ash-head { display:flex; align-items:center; gap:11px; padding:13px 15px; border-bottom:1px solid #43372e; background:#28252a; }
+.ash-avatar { display:grid; place-items:center; width:43px; height:43px; border-radius:13px; background:#4c3426; font-size:27px; }
+.ash-head div:nth-child(2) { flex:1; display:flex; flex-direction:column; }
+.ash-head strong { font-family:"Barlow Condensed",sans-serif; font-size:22px; letter-spacing:.02em; }
+.ash-head span { color:#c7a994; font-size:11px; }
+.ash-head button { background:transparent; color:#e2c4ac; border:0; font-size:26px; cursor:pointer; padding:2px 7px; }
+.ash-messages { flex:1; overflow:auto; display:flex; flex-direction:column; align-items:flex-start; gap:11px; padding:16px 13px; }
+.ash-message { max-width:91%; padding:10px 12px; border-radius:12px; font-size:13px; line-height:1.55; white-space:pre-wrap; overflow-wrap:anywhere; }
+.ash-assistant { background:#31343a; color:#f4e5d8; border-bottom-left-radius:4px; }
+.ash-user { background:#75462e; color:#fff0e2; align-self:flex-end; border-bottom-right-radius:4px; }
+.ash-suggestions { display:flex; flex-wrap:wrap; gap:5px; padding:0 12px 10px; }
+.ash-suggestions button { border:1px solid #79533b; border-radius:16px; padding:6px 9px; background:transparent; color:#eac4a4; font-size:11px; cursor:pointer; }
+.ash-suggestions button:hover { background:#40332b; }
+.ash-compose { display:flex; align-items:center; gap:8px; padding:10px 12px 5px; border-top:1px solid #403832; }
+.ash-compose input { flex:1; min-width:0; padding:10px 12px; border-radius:9px; border:1px solid #51453e; background:#292c31; color:#fff; font-size:13px; outline-color:#d58e56; }
+.ash-compose button { width:37px; height:37px; border:0; border-radius:10px; background:#c36d3a; color:#fff; cursor:pointer; }
+.ash-compose button:disabled { opacity:.45; cursor:default; }
+.ash-caution { margin:0; padding:0 12px 9px; color:#a99a91; font-size:10px; text-align:center; }
+@media(max-width:540px) { .ash-shell { right:10px; bottom:10px; } .ash-panel { height:min(520px,calc(100dvh - 92px)); } }
