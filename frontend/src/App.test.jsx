@@ -455,6 +455,7 @@ describe("Sprint 3 detection dashboard integration (#43)", () => {
 
     render(<App />);
     (await screen.findByRole("button", { name: "Explore map" })).click();
+    await userEvent.setup().click(screen.getByRole("button", { name: /Data dates & details/ }));
     expect(await screen.findByText(/No wildfire detections available for the latest observations/))
       .toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Select area at 43.6532, -79.3832" }))
@@ -477,6 +478,7 @@ describe("Sprint 3 detection dashboard integration (#43)", () => {
 
     render(<App />);
     (await screen.findByRole("button", { name: "Explore map" })).click();
+    await userEvent.setup().click(screen.getByRole("button", { name: /Data dates & details/ }));
     expect(await screen.findByText(/2 detections shown/)).toBeInTheDocument();
     expect(screen.getAllByText("Potential wildfire").length).toBeGreaterThan(0);
     expect(screen.getByText("Low confidence detection")).toBeInTheDocument();
