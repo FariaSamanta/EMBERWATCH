@@ -226,7 +226,7 @@ function App() {
         <div>
         <span className="ew-eyebrow">WILDFIRE MONITORING</span>
         <h1>
-        {view === "dashboard" ? "Explore wildfire activity" : selectedArea?.name ?? "Area overview"}
+        {view === "dashboard" ? "Explore wildfire activity" : "Area assessment"}
         </h1>
         <p>
         {view === "dashboard" ? "Explore monitored locations and satellite observations across Canada." : "Risk assessment and environmental conditions"}
