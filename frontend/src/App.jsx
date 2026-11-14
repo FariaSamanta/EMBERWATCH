@@ -278,7 +278,7 @@ function App() {
       {detectionResult && !detectionLoading && (
         <div className="ew-data-summary" role="status">
           <span>{detectionSummary(detectionResult)}</span>
-          {detectionResult.detections.length === 0 && <span>No recent detections to display.</span>}
+          {detectionResult.detections.length === 0 && <span>No wildfire detections available for the latest observations.</span>}
         </div>
       )}
 
@@ -374,7 +374,7 @@ function App() {
           Show 50 km risk zones
         </label>
         <details className="ew-legend-disclosure"><summary>Map legend</summary><RiskLegend /></details>
-        <details className="ew-map-help"><summary>About this map</summary><p>Shaded 50 km circles represent modeled area risk, not predicted fire spread. Dashed outlines indicate incomplete inputs. Red detection markers meet the satellite confidence threshold; grey markers do not. Detection confidence is not the same as wildfire risk.</p></details>
+        <details className="ew-map-help"><summary>About this map</summary><p aria-label="Risk zone legend">Shaded risk zones represent the 50 km modeled footprint, not predicted fire spread.</p><p aria-label="Detection marker legend">Detection markers: solid red = meets confidence threshold; dashed grey = low confidence. Detection confidence reflects the observation, not the environmental wildfire risk score.</p><p>Shaded 50 km circles represent modeled area risk, not predicted fire spread. Dashed outlines indicate incomplete inputs. Red detection markers meet the satellite confidence threshold; grey markers do not. Detection confidence is not the same as wildfire risk.</p></details>
         </div>
       </div>
       
