@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { API_BASE_URL } from "../services/apiConfig";
+import AshMascot from "./AshMascot";
 
 const starterQuestions = ["What's the risk in Kelowna?", "What do fire icons mean?", "How current is the data?"];
 
@@ -61,13 +62,13 @@ export default function AshDetective({ areas = [], detections = [], selectedArea
   return (
     <div className="ash-shell">
       {open && <section className="ash-panel" aria-label="Ash Detective assistant">
-        <header className="ash-head"><div className="ash-avatar" aria-hidden="true">🕵️</div><div><strong>Ash Detective</strong><span>Wildfire case notes · educational</span></div><button type="button" aria-label="Close Ash Detective" onClick={() => setOpen(false)}>×</button></header>
+        <header className="ash-head"><div className="ash-avatar"><AshMascot size={38} /></div><div><strong>Ash Detective</strong><span>Wildfire case notes · educational</span></div><button type="button" aria-label="Close Ash Detective" onClick={() => setOpen(false)}>×</button></header>
         <div className="ash-messages" role="log" aria-live="polite">{messages.map((m, i) => <div className={`ash-message ash-${m.role}`} key={i}>{m.text}</div>)}{busy && <div className="ash-message ash-assistant">Investigating…</div>}<div ref={endRef} /></div>
         {messages.length === 1 && <div className="ash-suggestions">{starterQuestions.map((q) => <button type="button" key={q} onClick={() => ask(q)}>{q}</button>)}</div>}
         <form className="ash-compose" onSubmit={(e) => { e.preventDefault(); ask(draft); }}><input aria-label="Ask Ash Detective" placeholder="Ask me anything about the map…" value={draft} maxLength={500} onChange={(e) => setDraft(e.target.value)} /><button type="submit" disabled={!draft.trim() || busy} aria-label="Send message">➤</button></form>
         <p className="ash-caution">May be incomplete or outdated · Not emergency advice</p>
       </section>}
-      <button type="button" className="ash-launcher" aria-label={open ? "Close Ash Detective" : "Chat with Ash Detective"} aria-expanded={open} onClick={() => setOpen((v) => !v)}><span aria-hidden="true">🕵️</span><span>{open ? "Close case" : "Ask Ash"}</span></button>
+      <button type="button" className="ash-launcher" aria-label={open ? "Close Ash Detective" : "Chat with Ash Detective"} aria-expanded={open} onClick={() => setOpen((v) => !v)}><span aria-hidden="true"><AshMascot size={29} /></span><span>{open ? "Close case" : "Ask Ash"}</span></button>
     </div>
   );
 }
