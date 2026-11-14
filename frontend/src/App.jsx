@@ -89,12 +89,13 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedArea, setSelectedArea] = useState(null);
-  const [showZones, setShowZones] = useState(true);
+  const [showZones, setShowZones] = useState(false);
   const [search, setSearch] = useState("");
   const [showFullDetails, setShowFullDetails] = useState(false);
   const [view, setView] = useState("dashboard");
   const [page, setPage] = useState("home");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showDataNotes, setShowDataNotes] = useState(false);
   const menuRef = useRef(null);
   const detailsRef = useRef(null);
 
@@ -230,12 +231,12 @@ function App() {
           <button type="button" aria-current={page === "learn" ? "page" : undefined} onClick={() => setPage("learn")}>Understand risk</button>
         </nav>
         <div className="ew-menu-wrap" ref={menuRef}>
-          <button type="button" className="ew-menu-toggle" aria-label="Map settings" aria-expanded={menuOpen} aria-controls="ew-navigation" onClick={() => setMenuOpen((open) => !open)}>
-            <span aria-hidden="true">⚙</span><span>Map settings</span>
+          <button type="button" className="ew-menu-toggle" aria-label="More options" aria-expanded={menuOpen} aria-controls="ew-navigation" onClick={() => setMenuOpen((open) => !open)}>
+            <span aria-hidden="true">☰</span><span>More</span>
           </button>
           {menuOpen && <nav id="ew-navigation" className="ew-navigation" aria-label="Map settings">
-            <strong>Map preferences</strong>
-            <p className="ew-settings-note">Risk-zone visibility is controlled from the map toolbar.</p>
+            <strong>More options</strong>
+            <button type="button" onClick={() => { setPage("learn"); setMenuOpen(false); }}>How risk works</button>
             <button type="button" onClick={() => { setSelectedArea(null); setShowFullDetails(false); setView("dashboard"); setMenuOpen(false); }}>Reset map selection</button>
             <button type="button" onClick={() => { setReporting(true); setMenuOpen(false); }}>Report a Fire {REPORTS_ENABLED ? "" : "(preview)"}</button>
             <p>EmberWatch is an educational risk explorer, not an emergency alert service.</p>
@@ -244,8 +245,8 @@ function App() {
         </header>
       <main className="ew-main">
       {page === "home" && <section className="ew-home" aria-label="EmberWatch home">
-        <div className="ew-home-hero"><span className="ew-eyebrow">CANADIAN WILDFIRE DATA · EXPLAINED</span><h1>See the signals.<br /><em>Understand the risk.</em></h1><p>Explore satellite fire observations and environmental risk assessments in one interactive map. Designed to make complex wildfire data easier to understand.</p><div className="ew-home-actions"><button type="button" onClick={() => setPage("explore")}>Explore the map <span aria-hidden="true">→</span></button><button type="button" className="ew-secondary-action" onClick={() => setPage("learn")}>How it works</button></div><p className="ew-home-caution">Educational prototype · Not an emergency alert or evacuation service</p></div>
-        <div className="ew-home-preview" aria-label="Explore features"><div className="ew-home-orbit"><span>🔥</span></div><p className="ew-overline">THE EMBERWATCH EXPERIENCE</p><h2>From observations to insight.</h2><div className="ew-feature-tiles"><button type="button" onClick={() => setPage("explore")}><strong>01 · Explore</strong><span>Search monitored regions and zoom to their risk assessments.</span><span aria-hidden="true">↗</span></button><button type="button" onClick={() => setPage("explore")}><strong>02 · Discover</strong><span>Inspect satellite hotspots, timestamps and confidence.</span><span aria-hidden="true">↗</span></button><button type="button" onClick={() => setPage("learn")}><strong>03 · Understand</strong><span>Learn what the scores mean and where data is missing.</span><span aria-hidden="true">↗</span></button></div></div>
+        <div className="ew-home-hero"><span className="ew-eyebrow">EXPLORE WILDFIRES IN CANADA</span><h1>See what’s<br /><em>happening.</em></h1><p>Curious about wildfire activity? Explore the map, check monitored areas, and see what the data tells us.</p><div className="ew-home-actions"><button type="button" onClick={() => setPage("explore")}>Explore the map <span aria-hidden="true">→</span></button><button type="button" className="ew-secondary-action" onClick={() => setPage("learn")}>How it works</button></div><p className="ew-home-caution">Educational prototype · Not an emergency alert or evacuation service</p></div>
+        <div className="ew-home-preview" aria-label="Explore features"><div className="ew-home-orbit"><span>🔥</span></div><p className="ew-overline">WHAT CAN YOU DO?</p><h2>Start exploring.</h2><div className="ew-feature-tiles"><button type="button" onClick={() => setPage("explore")}><strong>Explore the map</strong><span>Search monitored regions and zoom to their risk assessments.</span><span aria-hidden="true">↗</span></button><button type="button" onClick={() => setPage("explore")}><strong>Spot fire activity</strong><span>Inspect satellite hotspots, timestamps and confidence.</span><span aria-hidden="true">↗</span></button><button type="button" onClick={() => setPage("learn")}><strong>Understand risk</strong><span>Learn what the scores mean and where data is missing.</span><span aria-hidden="true">↗</span></button></div></div>
       </section>}
       {page === "learn" && <section className="ew-learn" aria-label="Understanding wildfire risk"><button type="button" className="ew-text-back" onClick={() => setPage("home")}>← Back to home</button><span className="ew-eyebrow">DATA, NOT PREDICTIONS</span><h1>Know what you’re looking at.</h1><p className="ew-learn-intro">EmberWatch combines environmental observations and satellite detections. These are different kinds of information, with different limitations.</p><div className="ew-learn-grid"><article><span>01 / AREA RISK</span><h2>Environmental risk</h2><p>A provisional 0–100 model score derived from available weather, terrain and nearby detection history. It is not a forecast of where a fire will spread.</p></article><article><span>02 / SATELLITE SIGNAL</span><h2>Detection confidence</h2><p>Confidence describes an individual satellite hotspot observation, not the overall wildfire risk of a region. Hotspots are not necessarily confirmed wildfires.</p></article><article><span>03 / DATA QUALITY</span><h2>Freshness matters</h2><p>Older observations may not reflect current conditions. Check the dates, missing inputs and warnings before interpreting any risk assessment.</p></article></div><button type="button" className="ew-primary-action" onClick={() => setPage("explore")}>Explore monitored areas →</button><p className="ew-home-caution">For emergencies, follow official local authorities and emergency services.</p></section>}
       <div className={page === "explore" ? "ew-explore-page" : "ew-page-hidden"}>
@@ -253,10 +254,10 @@ function App() {
         <div>
         <span className="ew-eyebrow"><span className="ew-live-ember" aria-hidden="true" /> WILDFIRE INTELLIGENCE · CANADA</span>
         <h1>
-        {view === "dashboard" ? "Wildfire intelligence, in focus." : "Area assessment"}
+        {view === "dashboard" ? "Explore the map" : "Area assessment"}
         </h1>
         <p>
-        {view === "dashboard" ? "Explore satellite detections and environmental risk across monitored locations." : "Risk assessment and environmental conditions"}
+        {view === "dashboard" ? "Search for a place or tap a marker to see its risk." : "Risk assessment and environmental conditions"}
         </p>
         </div>
         </div>
@@ -303,9 +304,9 @@ function App() {
         </p>
       )}
 
-      <DataFreshness areas={riskAreas} detections={detectionResult?.detections} />
+      <div className="ew-data-notes"><button type="button" className="ew-data-notes-toggle" aria-expanded={showDataNotes} onClick={() => setShowDataNotes((open) => !open)}>{showDataNotes ? "Hide data details −" : "Data dates & details +"}</button>{showDataNotes && <div className="ew-data-notes-content"><DataFreshness areas={riskAreas} detections={detectionResult?.detections} /></div>}</div>
 
-      {detectionResult && !detectionLoading && (
+      {showDataNotes && detectionResult && !detectionLoading && (
         <div className="ew-data-summary" role="status">
           <span>{detectionSummary(detectionResult)}</span>
           {detectionResult.detections.length === 0 && <span>No wildfire detections available for the latest observations.</span>}
@@ -411,8 +412,8 @@ function App() {
       
         <aside className="ew-side-panel">
           <div className="ew-panel-top">
-          <div className="ew-locations-heading"><h2>Search & explore</h2><span className="ew-section-meta">{riskAreas.length} areas</span></div>
-          <label className="ew-search-label" htmlFor="ew-area-search">Search monitored areas</label>
+          <div className="ew-locations-heading"><h2>Find a place</h2><span className="ew-section-meta">{riskAreas.length} areas</span></div>
+          <label className="ew-search-label" htmlFor="ew-area-search">Search the monitored locations</label>
           <input id="ew-area-search" type="search" placeholder="Search city or monitored area..." value={search} onChange={(event) => { setSearch(event.target.value); if (view !== "dashboard") setView("dashboard"); }} onKeyDown={(event) => { if (event.key === "Enter" && filteredAreas.length > 0) selectArea(filteredAreas[0]); }} />
           {search.trim() && <p className="ew-search-count">{filteredAreas.length} matching monitored {filteredAreas.length === 1 ? "area" : "areas"} · Press Enter to zoom to first result</p>}
           <nav className="ew-area-list" aria-label="Monitored areas">
@@ -426,13 +427,13 @@ function App() {
           <span aria-hidden="true">›</span>
           </button>)}{filteredAreas.length === 0 && <p className="ew-empty-search">No matching monitored areas.</p>}
           </nav>
-          <p className="ew-search-footnote">Risk assessments are available for monitored areas only; searching does not generate new risk predictions.</p>
+          <details className="ew-search-footnote"><summary>Why only these places?</summary><p>Risk estimates are currently available for monitored areas only. Searching does not generate new predictions.</p></details>
           </div>
           <div ref={detailsRef} tabIndex={-1} className="ew-detail-panel" aria-label="Area details">
           {!selectedArea ? (
             <>
-              <h2>Area Details</h2>
-              <p>Click a colored circle on the map to view its risk assessment and environmental data.</p>
+              <h2>Pick a place</h2>
+              <p>Tap a location to see its risk score and what goes into it.</p>
             </>
           ) : (
             <>
