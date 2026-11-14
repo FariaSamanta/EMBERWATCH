@@ -113,6 +113,7 @@ function App() {
   const [showDataNotes, setShowDataNotes] = useState(false);
   const [showAreaList, setShowAreaList] = useState(false);
   const [mapLayer, setMapLayer] = useState("both");
+  const [mapControlsOpen, setMapControlsOpen] = useState(false);
   const [mapZoom, setMapZoom] = useState(7);
   const [clusterZoomTarget, setClusterZoomTarget] = useState(null);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
@@ -486,7 +487,7 @@ function App() {
             );
           })}
         </MapContainer></div>
-        <div className="ew-map-controls"><div className="ew-layer-switcher" role="group" aria-label="Map layers">{[["both", "Both"], ["risk", "Risk"], ["detections", "Detections"]].map(([value, label]) => <button type="button" key={value} aria-pressed={mapLayer === value} onClick={() => setMapLayer(value)}>{label}</button>)}</div><label className="ew-zone-toggle">
+        <div className={`ew-map-controls ${mapControlsOpen ? "ew-map-controls-open" : "ew-map-controls-collapsed"}`} onMouseEnter={() => setMapControlsOpen(true)} onMouseLeave={() => setMapControlsOpen(false)}><button type="button" className="ew-map-controls-toggle" aria-expanded={mapControlsOpen} aria-controls="ew-map-controls-content" onClick={() => setMapControlsOpen((open) => !open)}><span>☷ Map layers & legend</span><span aria-hidden="true">{mapControlsOpen ? "−" : "+"}</span></button><div id="ew-map-controls-content" className="ew-map-controls-content" hidden={!mapControlsOpen}><div className="ew-layer-switcher" role="group" aria-label="Map layers">{[["both", "Both"], ["risk", "Risk"], ["detections", "Detections"]].map(([value, label]) => <button type="button" key={value} aria-pressed={mapLayer === value} onClick={() => setMapLayer(value)}>{label}</button>)}</div><label className="ew-zone-toggle">
           <input
             type="checkbox"
             checked={showZones}
@@ -496,7 +497,7 @@ function App() {
         </label>
         <details className="ew-legend-disclosure" open><summary>Map legend</summary><RiskLegend /></details>
         <details className="ew-map-help"><summary>Map information</summary><p aria-label="Risk zone legend">Shaded risk zones represent the 50 km modeled footprint, not predicted fire spread.</p><p aria-label="Detection marker legend">Flame icons mark satellite detections: bright flame = meets confidence threshold; faded flame = low confidence. Detection confidence reflects the observation, not the environmental wildfire risk score.</p><p>Shaded 50 km circles represent modeled area risk, not predicted fire spread. Dashed outlines indicate incomplete inputs. Bright flame icons meet the satellite confidence threshold; faded flame icons do not. Detection confidence is not the same as wildfire risk.</p></details>
-        </div>
+        </div></div>
       </div>
       
         <aside className={`ew-side-panel ${selectedArea || selectedDetection || searchedPlace ? "ew-has-selection" : ""} ${detailsExpanded ? "ew-sheet-expanded" : ""}`}>
