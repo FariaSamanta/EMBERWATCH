@@ -1102,3 +1102,50 @@
  .ew-page-heading h1 { font-size:36px; }
  .ew-brand { font-size:22px; }
 }
+
+
+/* Friendly, uncluttered experience: fewer competing controls and calmer hierarchy. */
+.ew-app { background:radial-gradient(ellipse at 78% -15%,#291b1b 0%,transparent 45%),#101317; }
+.ew-home { gap:clamp(24px,4vw,64px); }
+.ew-home-hero h1 { text-transform:none; font-size:clamp(62px,7.2vw,102px); line-height:.99; }
+.ew-home-hero>p:not(.ew-home-caution) { max-width:490px; line-height:1.55; font-size:18px; }
+.ew-home-preview { padding:26px; border-color:#49352d; box-shadow:0 16px 42px #0004; }
+.ew-home-orbit { height:110px; }
+.ew-home-orbit span { width:72px; height:72px; font-size:35px; box-shadow:0 0 0 10px #f8752d09,0 0 35px #fa633c25; }
+.ew-home-preview h2 { margin:5px 0 15px; }
+.ew-feature-tiles button { border-color:#49362f; padding:13px 15px; }
+.ew-page-heading h1 { font-size:clamp(32px,3.6vw,49px); }
+.ew-page-heading p { font-size:15px; }
+.ew-top-nav { border:0; background:transparent; }
+.ew-top-nav button { font-size:14px; font-weight:600; }
+.ew-top-nav button[aria-current="page"] { background:#402920; color:#ffc9a6; }
+.ew-menu-toggle { background:transparent; border-color:#46332d; }
+.ew-workspace,.ew-view-dashboard .ew-workspace { gap:16px; }
+.ew-map-column,.ew-side-panel { border-color:#47352e; box-shadow:0 10px 32px #0004; }
+.ew-side-panel,.ew-view-information .ew-side-panel,.ew-view-risk .ew-side-panel { background:rgba(26,28,33,.94); }
+.ew-panel-top { padding:20px; }
+.ew-locations-heading h2 { font-size:27px; }
+.ew-area-list { gap:5px; }
+.ew-area-row { border-color:transparent; background:#24272c; border-radius:9px; }
+.ew-area-row:hover,.ew-area-row.is-selected { border-color:#c77850; background:#372923; }
+.ew-map-controls { background:rgba(23,26,31,.9); padding:10px 12px; }
+.ew-map-title { background:rgba(21,24,28,.86); }
+.ew-search-footnote { margin-top:12px; }
+.ew-search-footnote summary { color:#d1ad98; cursor:pointer; }
+.ew-data-notes { margin:7px 0 13px; }
+.ew-data-notes-toggle { background:transparent; border:0; padding:5px 0; color:#e2a17a; cursor:pointer; font-size:12px; font-weight:600; }
+.ew-data-notes-content { color:#cbb7a9; font-size:12px; max-width:700px; }
+.ew-data-notes-content p { margin:5px 0; }
+.ew-app .freshness-line { font-size:12px; margin:6px 0; }
+.ew-app .freshness-line.is-stale { padding:8px 12px; }
+.ew-app .freshness-line.is-history { padding:7px 11px; }
+.ew-app .ew-warning { padding:8px 11px; }
+.ew-ember-field i { opacity:.2; }
+@media(max-width:680px) {
+ .ew-home-hero h1 { font-size:clamp(52px,12vw,75px); }
+ .ew-home-preview { padding:20px; }
+ .ew-home-orbit { height:75px; }
+ .ew-home-orbit span { width:55px; height:55px; font-size:27px; }
+ .ew-top-nav { padding:3px; }
+ .ew-panel-top { padding:15px; }
+}
