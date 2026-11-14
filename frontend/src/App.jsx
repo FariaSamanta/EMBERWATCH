@@ -606,8 +606,8 @@ function App() {
                 <p>These environmental factors contribute to an experimental risk estimate, not a confirmed fire.</p>
               </details>
 
-              <button type="button" className="ew-details-button" onClick={() => {setShowFullDetails((v) => !v);setView((v) => v === "risk" ? "information" : "risk");}} aria-expanded={showFullDetails}>{showFullDetails ? "← Back to Fire Information" : "View Risk Details →"}</button>
-              <div className={showFullDetails ? "ew-expanded-details" : "ew-collapsed-details"}><h3>How the risk estimate is calculated</h3>
+              <button type="button" className="ew-details-button" onClick={() => setShowFullDetails((open) => !open)} aria-expanded={showFullDetails}>{showFullDetails ? "← Back to Fire Information" : "View Risk Details →"}</button>
+              {showFullDetails && <div className="ew-expanded-details"><h3>How the risk estimate is calculated</h3>
               <ul aria-label="Risk factor explanations">
                 {explainFactors(selectedArea).map(({ key, weight, score, explanation }) => (
                   <li key={key}>
@@ -618,7 +618,7 @@ function App() {
               </ul>
               <p>Model: {selectedArea.model_version ?? "Unavailable"}. Factor scores and weights are provisional; this is not a validated real-time fire forecast.</p>
 
-              </div><button type="button" className="ew-clear-selection" onClick={() => { setSelectedArea(null); setShowFullDetails(false); setView("dashboard"); }}>Clear selection</button>
+              </div>}<button type="button" className="ew-clear-selection" onClick={() => { setSelectedArea(null); setShowFullDetails(false); setView("dashboard"); }}>Clear selection</button>
             </>
           )}
         </div></aside></div>
