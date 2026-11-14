@@ -31,6 +31,7 @@ import "leaflet/dist/leaflet.css";
 import { explainFactors } from "./utils/riskExplanation";
 import { sortAreasByRisk } from "./utils/riskFormat";
 import RiskLegend from "./components/RiskLegend";
+import AshDetective from "./components/AshDetective";
 
 const fireMarkerIcon = (lowConfidence) => divIcon({
   className: "ew-fire-marker-wrap",
@@ -595,6 +596,7 @@ function App() {
           )}
         </div></aside>
       </div></div></main>
+      <AshDetective areas={riskAreas} detections={detectionResult?.detections ?? []} selectedArea={selectedArea} searchedPlace={searchedPlace} />
     </div>
   );
 }
