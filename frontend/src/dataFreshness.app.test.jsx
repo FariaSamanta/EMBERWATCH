@@ -13,8 +13,6 @@ vi.mock("react-leaflet", async () => {
   return {
     MapContainer: ({ children }) => React.createElement("div", null, children),
     TileLayer: () => null,
-    Pane: ({ children }) => React.createElement(React.Fragment, null, children),
-    Polygon: () => null,
     Popup: () => null,
     Tooltip: () => null,
     CircleMarker: () => null,
