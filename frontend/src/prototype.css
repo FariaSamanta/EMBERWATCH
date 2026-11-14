@@ -726,3 +726,82 @@
   .ew-view-information .ew-map-frame, .ew-view-risk .ew-map-frame { height: min(58vh, 380px); }
   .ew-side-panel { overflow: visible; }
 }
+
+
+/* Map-first workspace: maximize geographic context and reveal details on demand. */
+.ew-main { max-width:none; padding:16px clamp(12px,2vw,30px) 28px; }
+.ew-page-heading { margin:4px 0 12px; }
+.ew-page-heading h1 { font-size:clamp(22px,2.4vw,30px); }
+.ew-page-heading p { margin-top:3px; }
+.ew-dashboard-tools { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.ew-dashboard-tools > button { margin-bottom:0!important; }
+.ew-data-summary { display:flex; flex-wrap:wrap; gap:8px; margin:5px 0 10px; font-size:12px; color:#65766c; }
+.ew-workspace { position:relative; display:block; min-height:calc(100vh - 190px); }
+.ew-map-column { position:relative; padding:0; border-radius:12px; overflow:hidden; }
+.ew-map-frame,.ew-view-information .ew-map-frame,.ew-view-risk .ew-map-frame {
+  height:calc(100vh - 205px); min-height:560px; border:0; border-radius:12px;
+}
+.ew-side-panel {
+  position:absolute; z-index:500; top:16px; left:16px; width:min(340px,calc(100% - 32px));
+  max-height:calc(100vh - 242px); overflow:auto; background:#fffffffa;
+  box-shadow:0 12px 38px #172b2340; border-radius:12px;
+}
+.ew-panel-top { padding:15px; }
+.ew-locations-heading { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.ew-locations-heading h2 { margin:0; font-size:17px; }
+.ew-search-label { margin:10px 0 5px; }
+.ew-panel-top input { padding:10px 12px; }
+.ew-area-list { max-height:min(31vh,240px); gap:4px; margin-top:9px; }
+.ew-area-row { padding:9px 10px; min-height:40px; }
+.ew-detail-panel { padding:16px; }
+.ew-detail-panel h2 { font-size:20px; }
+.ew-view-dashboard .ew-detail-panel { display:none; }
+.ew-view-information .ew-panel-top,.ew-view-risk .ew-panel-top { display:none; }
+.ew-view-information .ew-detail-panel,.ew-view-risk .ew-detail-panel { display:block; }
+.ew-map-controls {
+  position:absolute; z-index:450; right:16px; bottom:18px; width:min(360px,calc(100% - 32px));
+  padding:12px 14px; border-radius:11px; background:#fffffff2;
+  box-shadow:0 8px 28px #182c2340; border:1px solid #dce3dc;
+}
+.ew-zone-toggle { display:flex; align-items:center; gap:7px; font-size:13px; font-weight:650; margin-bottom:8px; }
+.ew-map-controls .legend { margin:0; }
+.ew-map-help { font-size:12px; color:#55665b; margin-top:9px; }
+.ew-map-help summary,.ew-factor-disclosure summary { cursor:pointer; font-weight:700; color:#315a43; }
+.ew-map-help p { line-height:1.5; margin:8px 0 0; }
+.ew-assessment-summary { font-size:12px; color:#5e6c63; }
+.ew-factor-disclosure { padding:11px 0; border-top:1px solid #e6ebe6; border-bottom:1px solid #e6ebe6; }
+.ew-factor-list { margin-top:10px; }
+.ew-factor-row { display:flex; justify-content:space-between; align-items:baseline; gap:14px; padding:6px 0; border-bottom:1px solid #f0f2ef; font-size:12px; }
+.ew-factor-row strong { text-align:right; color:#254a37; }
+.ew-metric-grid { margin:10px 0; }
+.ew-metric { padding:11px; }
+.ew-detail-panel hr { margin:10px 0; }
+.ew-details-button { margin:10px 0; padding:12px; }
+.ew-app button:focus-visible,.ew-app summary:focus-visible { outline:3px solid #246d51; outline-offset:2px; }
+@media(max-width:860px) {
+  .ew-main { padding:12px 10px 24px; }
+  .ew-page-heading { margin-bottom:10px; }
+  .ew-page-heading h1 { font-size:23px; }
+  .ew-page-heading p { font-size:12px; }
+  .ew-workspace { display:flex; flex-direction:column; min-height:0; gap:10px; }
+  .ew-map-column { order:0; }
+  .ew-map-frame,.ew-view-information .ew-map-frame,.ew-view-risk .ew-map-frame {
+    height:calc(72dvh - 100px); min-height:360px;
+  }
+  .ew-side-panel { order:1; position:static; width:100%; max-height:none; overflow:visible; box-shadow:0 3px 12px #273c2a12; }
+  .ew-map-controls { bottom:10px; right:10px; padding:9px 11px; max-height:40%; overflow:auto; }
+  .ew-area-list { max-height:210px; }
+  .ew-view-information .ew-panel-top,.ew-view-risk .ew-panel-top { display:none; }
+  .ew-view-dashboard .ew-detail-panel { display:none; }
+  .ew-view-information .ew-detail-panel,.ew-view-risk .ew-detail-panel { display:block; }
+}
+@media(max-width:560px) {
+  .ew-main { padding:10px 8px 18px; }
+  .ew-page-heading { margin:0 0 8px; }
+  .ew-page-heading h1 { font-size:21px; }
+  .ew-page-heading .ew-eyebrow { display:none; }
+  .ew-map-frame,.ew-view-information .ew-map-frame,.ew-view-risk .ew-map-frame { height:58dvh; min-height:340px; }
+  .ew-map-controls { width:auto; max-width:calc(100% - 20px); }
+  .ew-map-controls .legend { font-size:10px; }
+  .ew-panel-top,.ew-detail-panel { padding:14px; }
+}
