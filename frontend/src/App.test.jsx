@@ -226,6 +226,7 @@ describe("Wildfire risk map", () => {
 
     expect(screen.getByLabelText("Map legend")).toHaveTextContent("incomplete");
     expect(screen.getByRole("button", { name: /close map layers and legend/i })).toBeInTheDocument();
+    expect(screen.getByText("Map legend").closest("details")).toHaveAttribute("open");
   });
 
   it("shades valid risk zones without fabricating values for unscored areas (#44)", async () => {
