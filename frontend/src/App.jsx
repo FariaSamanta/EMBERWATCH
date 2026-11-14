@@ -72,6 +72,18 @@ function FocusSelected({ area }) {
   return null;
 }
 
+function RefreshMapLayout({ active }) {
+  const map = useMap();
+  useEffect(() => {
+    if (active) {
+      map.invalidateSize?.();
+      const frame = requestAnimationFrame(() => map.invalidateSize?.());
+      return () => cancelAnimationFrame(frame);
+    }
+  }, [map, active]);
+  return null;
+}
+
 function App() {
   const [riskAreas, setRiskAreas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -308,6 +320,7 @@ function App() {
             zoom={7}
             style={{ height: "100%", width: "100%" }}
           >
+            <RefreshMapLayout active={page === "explore"} />
             <FocusSelected area={selectedArea} />
             <TileLayer
               attribution="&copy; OpenStreetMap contributors"
