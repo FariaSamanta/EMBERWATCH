@@ -980,3 +980,23 @@
  .ew-map-controls { right:9px; bottom:9px; padding:9px; }
 }
 @media(prefers-reduced-motion:reduce) { .ew-ember-field i,.ew-live-ember,.ew-map-title-dot { animation:none!important; } }
+
+
+/* Search-driven map focus: keep search available while viewing risk details. */
+.ew-view-information .ew-panel-top,.ew-view-risk .ew-panel-top { display:block; }
+.ew-view-information .ew-side-panel,.ew-view-risk .ew-side-panel { display:flex; flex-direction:column; }
+.ew-view-information .ew-area-list,.ew-view-risk .ew-area-list { max-height:130px; min-height:0; }
+.ew-view-information .ew-detail-panel,.ew-view-risk .ew-detail-panel { display:block; border-top:1px solid #684333; }
+.ew-search-count,.ew-search-footnote { color:#c7a894; font-size:11px; line-height:1.45; margin:8px 0 0; }
+.ew-search-footnote { color:#938b89; }
+.ew-map-frame .leaflet-tooltip.ew-selected-tooltip {
+  background:rgba(19,21,27,.96); border:1px solid #ff9358; color:#fff1e5;
+  padding:10px 13px; font-size:12px; line-height:1.5; border-radius:10px;
+  box-shadow:0 5px 25px #0008,0 0 18px #f66c3433; white-space:nowrap;
+}
+.ew-map-frame .leaflet-tooltip-top.ew-selected-tooltip:before { border-top-color:#ff9358; }
+.ew-view-information .ew-map-title,.ew-view-risk .ew-map-title { border-color:#ff965c77; }
+@media(max-width:860px) {
+ .ew-view-information .ew-panel-top,.ew-view-risk .ew-panel-top { display:block; }
+ .ew-view-information .ew-area-list,.ew-view-risk .ew-area-list { max-height:130px; }
+}
