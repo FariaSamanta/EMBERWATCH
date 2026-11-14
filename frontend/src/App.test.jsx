@@ -259,7 +259,7 @@ describe("Wildfire risk map", () => {
     (await screen.findByRole("button", { name: "Explore map" })).click();
     expect(screen.queryAllByTestId("risk-zone")).toHaveLength(0);
     await user.click(screen.getByRole("checkbox", { name: /show 50 km risk zones/i }));
-    expect(screen.queryAllByTestId("risk-zone")).toHaveLength(0);
+    expect(screen.queryAllByTestId("risk-zone")).toHaveLength(1);
     expect(screen.getByRole("button", { name: "Select area at 43.6532, -79.3832" })).toBeInTheDocument();
   });
 
