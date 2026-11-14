@@ -25,7 +25,7 @@ import {
   riskStatusText,
 } from "./utils/riskFormat";
 import { MapContainer, TileLayer, CircleMarker, Circle, Marker, Popup, Tooltip, useMap } from "react-leaflet";
-import { divIcon } from "leaflet";
+import { divIcon, latLngBounds } from "leaflet";
 import { RISK_ZONE_RADIUS_M, riskZoneStyle } from "./utils/riskZone";
 import "leaflet/dist/leaflet.css";
 import { explainFactors } from "./utils/riskExplanation";
@@ -50,7 +50,7 @@ const factorUnits = {
   slope_deg: "°",
 };
 
-// Zoom the map to the monitored areas once they load (#68 areas span Canada).
+// Fit the initial map to Canada rather than only the currently monitored areas.
 function FitToAreas({ areas }) {
   const map = useMap();
   const points = areaBounds(areas);
@@ -58,7 +58,7 @@ function FitToAreas({ areas }) {
 
   useEffect(() => {
     if (points.length > 0) {
-      map.fitBounds(points, { padding: [30, 30], maxZoom: 8 });
+      map.fitBounds([[42, -141], [83, -52]], { padding: [18, 18], maxZoom: 5 });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, key]);
@@ -403,8 +403,11 @@ function App() {
         <div className="ew-ember-field" aria-hidden="true"><i /><i /><i /><i /><i /><i /><i /><i /></div>
         <div className="ew-map-column"><div className="ew-map-title"><span className="ew-map-title-dot" /> MAP <span className="ew-map-title-caption">Explore locations and satellite observations</span></div><div className="ew-map-frame">
           <MapContainer
-            center={[45.4, -77.5]}
-            zoom={7}
+            center={[61, -100]}
+            zoom={4}
+            maxBounds={[[40, -143], [85, -50]]}
+            maxBoundsViscosity={1}
+            minZoom={3}
             style={{ height: "100%", width: "100%" }}
           >
             <RefreshMapLayout active={page === "explore"} />
@@ -486,7 +489,8 @@ function App() {
               </Marker>
             );
           })}
-        </MapContainer></div>
+        </MapContainer></div></div>
+        <div className="ew-map-side-window" aria-label="Map tools and location details">
         <div className={`ew-map-controls ${mapControlsOpen ? "ew-map-controls-open" : "ew-map-controls-collapsed"}`}><button type="button" className="ew-map-controls-toggle" aria-label={mapControlsOpen ? "Close map layers and legend" : "Open map layers and legend"} title={mapControlsOpen ? "Close map controls" : "Map layers and legend"} aria-expanded={mapControlsOpen} aria-controls="ew-map-controls-content" onClick={() => setMapControlsOpen((open) => !open)}><span aria-hidden="true" className="ew-map-controls-icon">☷</span>{mapControlsOpen && <span className="ew-map-controls-label">Map layers & legend</span>}<span aria-hidden="true" className="ew-map-controls-indicator">{mapControlsOpen ? "×" : ""}</span></button><div id="ew-map-controls-content" className="ew-map-controls-content" hidden={!mapControlsOpen}><div className="ew-layer-switcher" role="group" aria-label="Map layers">{[["both", "Both"], ["risk", "Risk"], ["detections", "Detections"]].map(([value, label]) => <button type="button" key={value} aria-pressed={mapLayer === value} onClick={() => setMapLayer(value)}>{label}</button>)}</div><label className="ew-zone-toggle">
           <input
             type="checkbox"
@@ -608,7 +612,7 @@ function App() {
               </div><button type="button" className="ew-clear-selection" onClick={() => { setSelectedArea(null); setShowFullDetails(false); setView("dashboard"); }}>Clear selection</button>
             </>
           )}
-        </div></aside>
+        </div></aside></div>
       </div></div></main>
       <AshDetective areas={riskAreas} detections={detectionResult?.detections ?? []} selectedArea={selectedArea} searchedPlace={searchedPlace} />
     </div>
