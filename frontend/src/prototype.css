@@ -805,3 +805,72 @@
   .ew-map-controls .legend { font-size:10px; }
   .ew-panel-top,.ew-detail-panel { padding:14px; }
 }
+
+
+/* Clean, non-overlapping glass workspace. The map and panel occupy separate columns. */
+.ew-app { background:#eef2ef; }
+.ew-header { position:relative; z-index:1000; }
+.ew-main { max-width:none; padding:14px clamp(12px,2vw,28px) 26px; }
+.ew-page-heading { margin:0 0 10px; }
+.ew-page-heading h1 { font-size:clamp(21px,2.2vw,28px); }
+.ew-page-heading p { margin-top:3px; }
+.ew-dashboard-tools:empty { display:none; }
+.ew-workspace,.ew-view-dashboard .ew-workspace {
+  display:grid; grid-template-columns:minmax(0,1fr) minmax(270px,320px);
+  gap:14px; align-items:stretch; min-height:0;
+}
+.ew-map-column { min-width:0; overflow:hidden; background:#dfe8e2; }
+.ew-map-frame,.ew-view-information .ew-map-frame,.ew-view-risk .ew-map-frame {
+  height:clamp(480px,calc(100dvh - 185px),980px); min-height:0; border:0;
+}
+.ew-side-panel,.ew-view-information .ew-side-panel,.ew-view-risk .ew-side-panel {
+  position:static; z-index:auto; top:auto; left:auto; width:100%;
+  max-height:clamp(480px,calc(100dvh - 185px),980px); min-height:0;
+  overflow:auto; background:rgba(255,255,255,.76);
+  backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,.85); box-shadow:0 8px 28px #243b3015;
+}
+.ew-map-controls {
+  position:absolute; z-index:450; right:12px; bottom:12px;
+  width:auto; max-width:min(285px,calc(100% - 24px));
+  padding:9px 12px; background:rgba(255,255,255,.82);
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,.85); box-shadow:0 5px 18px #142c2222;
+}
+.ew-map-controls .ew-zone-toggle { margin:0; font-size:12px; }
+.ew-legend-disclosure,.ew-map-help { margin-top:7px; font-size:11px; }
+.ew-legend-disclosure summary,.ew-map-help summary { cursor:pointer; font-weight:650; }
+.ew-legend-disclosure .legend { margin-top:8px; }
+.ew-panel-top { padding:16px; }
+.ew-locations-heading h2 { font-size:16px; }
+.ew-area-list { max-height:calc(100dvh - 340px); min-height:140px; }
+.ew-area-row { padding:9px 10px; background:rgba(255,255,255,.67); }
+.ew-detail-panel { padding:16px; }
+.ew-view-information .ew-panel-top,.ew-view-risk .ew-panel-top { display:none; }
+.ew-view-dashboard .ew-detail-panel { display:none; }
+.ew-view-information .ew-detail-panel,.ew-view-risk .ew-detail-panel { display:block; }
+.ew-menu-toggle { gap:7px; padding:7px 11px; border:1px solid #d8e1d9; font-size:13px; font-weight:650; }
+.ew-menu-toggle span:first-child { font-size:19px; }
+.ew-navigation { width:255px; padding:12px; }
+.ew-navigation > strong { display:block; padding:3px 6px 9px; font-size:13px; }
+.ew-navigation .ew-settings-option { display:flex; align-items:center; gap:9px; padding:10px 6px; font-size:13px; }
+.ew-navigation p { margin:8px 6px 3px; font-size:11px; line-height:1.5; color:#637568; }
+.ew-navigation button { width:100%; }
+@media(max-width:860px) {
+  .ew-workspace,.ew-view-dashboard .ew-workspace { display:flex; flex-direction:column; gap:10px; }
+  .ew-map-column { order:0; }
+  .ew-map-frame,.ew-view-information .ew-map-frame,.ew-view-risk .ew-map-frame { height:56dvh; min-height:320px; }
+  .ew-side-panel,.ew-view-information .ew-side-panel,.ew-view-risk .ew-side-panel {
+    order:1; position:static; width:100%; max-height:none; overflow:visible;
+  }
+  .ew-area-list { max-height:190px; min-height:0; }
+  .ew-map-controls { bottom:9px; right:9px; max-width:min(270px,calc(100% - 18px)); max-height:42%; overflow:auto; }
+  .ew-view-information .ew-panel-top,.ew-view-risk .ew-panel-top { display:none; }
+}
+@media(max-width:560px) {
+  .ew-main { padding:10px 8px 18px; }
+  .ew-map-frame,.ew-view-information .ew-map-frame,.ew-view-risk .ew-map-frame { height:52dvh; min-height:310px; }
+  .ew-menu-toggle { padding:7px 9px; }
+  .ew-menu-toggle span:last-child { display:none; }
+  .ew-navigation { right:0; max-width:calc(100vw - 20px); }
+}
