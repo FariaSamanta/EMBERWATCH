@@ -82,7 +82,6 @@ describe("fetchRiskAreas", () => {
   });
 });
 
-
 describe("Sprint 4 risk response contract (#63)", () => {
   it("accepts a valid empty risk-area response", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
