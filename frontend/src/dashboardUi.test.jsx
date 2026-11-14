@@ -26,6 +26,7 @@ vi.mock("react-leaflet", async () => {
     TileLayer: () => null,
     Popup: () => null,
     Tooltip: () => null,
+    Circle: () => null,
     useMap: () => mockMap,
     CircleMarker: ({ center, eventHandlers }) => React.createElement(
       "button",

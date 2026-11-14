@@ -787,3 +787,8 @@ Consult `frontend/package.json` for the current frontend test script, and [GitHu
 The final sprint will prioritize verifying the full detection-to-dashboard and risk-scoring-to-map flows, improving explainable risk factors and interface polish, checking error/empty states, validating deployments and database connectivity, and completing regression testing. The team will also prepare the final report, presentation, and demonstration. See the [prioritized GitHub Project backlog](https://github.com/users/RianaMalhotra/projects/1) for ownership and live task status.
 
 **Limitations:** EmberWatch is a course project. FIRMS observations are not instantaneous, confidence mappings and risk-scoring thresholds may be provisional, and unavailable inputs can reduce completeness. Neither detections nor risk categories should be used as official alerts or evacuation guidance.
+
+## Sprint 4 risk-zone overlay (#44)
+
+The Leaflet dashboard now renders an optional **50 km risk zone** around each monitored area using its computed `risk_score` and `risk_level` from `GET /api/risk-areas`. Shading increases with the score; an incomplete assessment has a dashed outline; areas without valid scores have no zone fill. The **Show 50 km risk zones** checkbox hides or shows the overlay without changing selectable area markers. These are discrete model footprints, **not** interpolated heatmaps, live fire predictions, or operational alerts. See [component interfaces](docs/component-interfaces.md) and [environmental data](docs/environmental-data.md) for data sources and limitations.
+
