@@ -239,6 +239,7 @@ describe("Wildfire risk map", () => {
     render(<App />);
     (await screen.findByRole("button", { name: "Explore map" })).click();
 
+    await userEvent.setup().click(screen.getByRole("button", { name: /open map layers and legend/i }));
     await userEvent.setup().click(screen.getByRole("checkbox", { name: /show 50 km risk zones/i }));
     const zones = await screen.findAllByTestId("risk-zone");
     expect(zones).toHaveLength(3);
@@ -258,6 +259,7 @@ describe("Wildfire risk map", () => {
     render(<App />);
     (await screen.findByRole("button", { name: "Explore map" })).click();
     expect(screen.queryAllByTestId("risk-zone")).toHaveLength(0);
+    await user.click(screen.getByRole("button", { name: /open map layers and legend/i }));
     await user.click(screen.getByRole("checkbox", { name: /show 50 km risk zones/i }));
     expect(screen.queryAllByTestId("risk-zone")).toHaveLength(1);
     expect(screen.getByRole("button", { name: "Select area at 43.6532, -79.3832" })).toBeInTheDocument();
