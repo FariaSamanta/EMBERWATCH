@@ -81,6 +81,7 @@ function App() {
   const [search, setSearch] = useState("");
   const [showFullDetails, setShowFullDetails] = useState(false);
   const [view, setView] = useState("dashboard");
+  const [page, setPage] = useState("explore");
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const detailsRef = useRef(null);
@@ -188,6 +189,7 @@ function App() {
   const filteredAreas = sortAreasByRisk(riskAreas)
     .filter((area) => (area.name ?? `Area ${area.id}`).toLowerCase().includes(search.trim().toLowerCase()));
   function selectArea(area) {
+    setPage("explore");
     setSelectedArea(area);
     setShowFullDetails(false);
     setView("information");
@@ -203,13 +205,18 @@ function App() {
     <div className={`ew-app ew-view-${view}`}>
       <header className="ew-header">
         <div className="ew-header-left">
-        {view !== "dashboard" && <button className="ew-nav-back" type="button" onClick={() => { if(view === "risk") {setView("information");setShowFullDetails(false);} else {setView("dashboard");setSelectedArea(null);} }}>← Back</button>}
-        <div className="ew-brand">
+        {page === "explore" && view !== "dashboard" && <button className="ew-nav-back" type="button" onClick={() => { if(view === "risk") {setView("information");setShowFullDetails(false);} else {setView("dashboard");setSelectedArea(null);} }}>← Back</button>}
+        <button type="button" className="ew-brand ew-brand-button" aria-label="Go to EmberWatch home" onClick={() => {setPage("home");setView("dashboard");setMenuOpen(false);}}>
         <span className="ew-brand-icon" aria-hidden="true">🔥</span>
         <span>EMBER<span className="ew-brand-accent">WATCH</span>
         </span>
+        </button>
         </div>
-        </div>
+        <nav className="ew-top-nav" aria-label="Main navigation">
+          <button type="button" aria-current={page === "home" ? "page" : undefined} onClick={() => setPage("home")}>Home</button>
+          <button type="button" aria-current={page === "explore" ? "page" : undefined} onClick={() => setPage("explore")}>Explore map</button>
+          <button type="button" aria-current={page === "learn" ? "page" : undefined} onClick={() => setPage("learn")}>Understand risk</button>
+        </nav>
         <div className="ew-menu-wrap" ref={menuRef}>
           <button type="button" className="ew-menu-toggle" aria-label="Map settings" aria-expanded={menuOpen} aria-controls="ew-navigation" onClick={() => setMenuOpen((open) => !open)}>
             <span aria-hidden="true">⚙</span><span>Map settings</span>
@@ -224,6 +231,12 @@ function App() {
         </div>
         </header>
       <main className="ew-main">
+      {page === "home" && <section className="ew-home" aria-label="EmberWatch home">
+        <div className="ew-home-hero"><span className="ew-eyebrow">CANADIAN WILDFIRE DATA · EXPLAINED</span><h1>See the signals.<br /><em>Understand the risk.</em></h1><p>Explore satellite fire observations and environmental risk assessments in one interactive map. Designed to make complex wildfire data easier to understand.</p><div className="ew-home-actions"><button type="button" onClick={() => setPage("explore")}>Explore the map <span aria-hidden="true">→</span></button><button type="button" className="ew-secondary-action" onClick={() => setPage("learn")}>How it works</button></div><p className="ew-home-caution">Educational prototype · Not an emergency alert or evacuation service</p></div>
+        <div className="ew-home-preview" aria-label="Explore features"><div className="ew-home-orbit"><span>🔥</span></div><p className="ew-overline">THE EMBERWATCH EXPERIENCE</p><h2>From observations to insight.</h2><div className="ew-feature-tiles"><button type="button" onClick={() => setPage("explore")}><strong>01 · Explore</strong><span>Search monitored regions and zoom to their risk assessments.</span><span aria-hidden="true">↗</span></button><button type="button" onClick={() => setPage("explore")}><strong>02 · Discover</strong><span>Inspect satellite hotspots, timestamps and confidence.</span><span aria-hidden="true">↗</span></button><button type="button" onClick={() => setPage("learn")}><strong>03 · Understand</strong><span>Learn what the scores mean and where data is missing.</span><span aria-hidden="true">↗</span></button></div></div>
+      </section>}
+      {page === "learn" && <section className="ew-learn" aria-label="Understanding wildfire risk"><button type="button" className="ew-text-back" onClick={() => setPage("home")}>← Back to home</button><span className="ew-eyebrow">DATA, NOT PREDICTIONS</span><h1>Know what you’re looking at.</h1><p className="ew-learn-intro">EmberWatch combines environmental observations and satellite detections. These are different kinds of information, with different limitations.</p><div className="ew-learn-grid"><article><span>01 / AREA RISK</span><h2>Environmental risk</h2><p>A provisional 0–100 model score derived from available weather, terrain and nearby detection history. It is not a forecast of where a fire will spread.</p></article><article><span>02 / SATELLITE SIGNAL</span><h2>Detection confidence</h2><p>Confidence describes an individual satellite hotspot observation, not the overall wildfire risk of a region. Hotspots are not necessarily confirmed wildfires.</p></article><article><span>03 / DATA QUALITY</span><h2>Freshness matters</h2><p>Older observations may not reflect current conditions. Check the dates, missing inputs and warnings before interpreting any risk assessment.</p></article></div><button type="button" className="ew-primary-action" onClick={() => setPage("explore")}>Explore monitored areas →</button><p className="ew-home-caution">For emergencies, follow official local authorities and emergency services.</p></section>}
+      <div className={page === "explore" ? "ew-explore-page" : "ew-page-hidden"}>
         <div className="ew-page-heading">
         <div>
         <span className="ew-eyebrow"><span className="ew-live-ember" aria-hidden="true" /> WILDFIRE INTELLIGENCE · CANADA</span>
@@ -256,7 +269,7 @@ function App() {
       )}
 
       {warnings.map((warning) => (
-        <p key={warning.code} role="status" style={{ color: "#92400e" }}>
+        <p key={warning.code} role="status" className="ew-warning">
           Notice: {warning.message}
         </p>
       ))}
@@ -478,7 +491,7 @@ function App() {
             </>
           )}
         </div></aside>
-      </div></main>
+      </div></div></main>
     </div>
   );
 }
