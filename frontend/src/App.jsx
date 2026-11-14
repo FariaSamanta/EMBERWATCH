@@ -206,12 +206,19 @@ function App() {
         </div>
         </div>
         <div className="ew-menu-wrap" ref={menuRef}>
-        <button type="button" className="ew-menu-toggle" aria-label="Open navigation menu" aria-expanded={menuOpen} aria-controls="ew-navigation" onClick={() => setMenuOpen((open) => !open)}>☰</button>
-        {menuOpen && <nav id="ew-navigation" className="ew-navigation" aria-label="Main navigation">
-        <button type="button" onClick={() => { setView("dashboard"); setSelectedArea(null); setShowFullDetails(false); setMenuOpen(false); }}>Wildfire Dashboard</button>
-        <button type="button" disabled={!selectedArea} onClick={() => { setView("information"); setShowFullDetails(false); setMenuOpen(false); }}>Fire Information</button>
-        <button type="button" disabled={!selectedArea} onClick={() => { setView("risk"); setShowFullDetails(true); setMenuOpen(false); }}>Risk Details</button>
-        </nav>}
+          <button type="button" className="ew-menu-toggle" aria-label="Map settings" aria-expanded={menuOpen} aria-controls="ew-navigation" onClick={() => setMenuOpen((open) => !open)}>
+            <span aria-hidden="true">⚙</span><span>Map settings</span>
+          </button>
+          {menuOpen && <nav id="ew-navigation" className="ew-navigation" aria-label="Map settings">
+            <strong>Map preferences</strong>
+            <label className="ew-settings-option">
+              <input type="checkbox" checked={showZones} onChange={(event) => setShowZones(event.target.checked)} />
+              Show 50 km risk zones
+            </label>
+            <button type="button" onClick={() => { setSelectedArea(null); setShowFullDetails(false); setView("dashboard"); setMenuOpen(false); }}>Reset map selection</button>
+            <button type="button" onClick={() => { setReporting(true); setMenuOpen(false); }}>Report a Fire {REPORTS_ENABLED ? "" : "(preview)"}</button>
+            <p>EmberWatch is an educational risk explorer, not an emergency alert service.</p>
+          </nav>}
         </div>
         </header>
       <main className="ew-main">
@@ -229,17 +236,7 @@ function App() {
 
       <div className="ew-dashboard-tools">
       {/* #51: public fire reports. Not an emergency service. */}
-      {reporting ? (
-        <ReportFire onClose={() => setReporting(false)} />
-      ) : (
-        <button
-          type="button"
-          onClick={() => setReporting(true)}
-          style={{ background: "#C2410C", color: "#fff", border: 0, borderRadius: 8, padding: "10px 16px", fontWeight: 600, marginBottom: 8 }}
-        >
-          {REPORTS_ENABLED ? "Report a Fire" : "Report a Fire (preview)"}
-        </button>
-      )}
+      {reporting && <ReportFire onClose={() => setReporting(false)} />}
 
       </div>
 
@@ -378,14 +375,14 @@ function App() {
           />{" "}
           Show 50 km risk zones
         </label>
-        <RiskLegend />
+        <details className="ew-legend-disclosure"><summary>Map legend</summary><RiskLegend /></details>
         <details className="ew-map-help"><summary>About this map</summary><p>Shaded 50 km circles represent modeled area risk, not predicted fire spread. Dashed outlines indicate incomplete inputs. Red detection markers meet the satellite confidence threshold; grey markers do not. Detection confidence is not the same as wildfire risk.</p></details>
         </div>
       </div>
       
         <aside className="ew-side-panel">
           <div className="ew-panel-top">
-          <div className="ew-locations-heading"><h2>Locations</h2><span className="ew-section-meta">{riskAreas.length} areas</span></div>
+          <div className="ew-locations-heading"><h2>Explore locations</h2><span className="ew-section-meta">{riskAreas.length} areas</span></div>
           <label className="ew-search-label" htmlFor="ew-area-search">Search monitored areas</label>
           <input id="ew-area-search" type="search" placeholder="Search location..." value={search} onChange={(event) => setSearch(event.target.value)} />
           <nav className="ew-area-list" aria-label="Monitored areas">
