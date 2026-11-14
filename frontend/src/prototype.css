@@ -1149,3 +1149,14 @@
  .ew-top-nav { padding:3px; }
  .ew-panel-top { padding:15px; }
 }
+
+
+/* Prominent but unobtrusive report action on the map page. */
+.ew-dashboard-tools { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin:0 0 14px; }
+.ew-report-cta { display:inline-flex; align-items:center; justify-content:center; gap:15px; padding:11px 17px; border:1px solid #ff705e; border-radius:10px; background:#c93632; color:#fff; font-weight:750; font-size:14px; cursor:pointer; box-shadow:0 5px 20px #9f292533; }
+.ew-report-cta:hover { background:#e0443d; }
+.ew-report-cta:focus-visible { outline:2px solid #ffb99b; outline-offset:3px; }
+.ew-report-cta span { font-size:17px; }
+.ew-report-disclaimer { color:#c3ada4; font-size:12px; }
+.ew-report-panel { margin:0 0 18px; padding:17px; border:1px solid #82443c; border-radius:14px; background:rgba(34,29,32,.94); }
+@media(max-width:680px) { .ew-report-cta { width:100%; } .ew-report-disclaimer { font-size:11px; } .ew-report-panel { padding:12px; } }
