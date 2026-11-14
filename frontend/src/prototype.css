@@ -1335,3 +1335,14 @@
  .ew-explore-page:not(.ew-page-hidden) .ew-map-first .ew-map-column { height:max(480px,calc(100dvh - 170px)); }
  .ew-explore-page:not(.ew-page-hidden) .ew-map-first .ew-map-frame > .leaflet-container { min-height:0; }
 }
+
+
+/* Compact map control tab: hover on desktop, click/tap on any device. */
+.ew-explore-page .ew-map-first .ew-map-controls { width:min(245px,calc(100vw - 32px)); padding:6px; gap:0; transition:width .18s ease, background .18s ease; }
+.ew-explore-page .ew-map-first .ew-map-controls.ew-map-controls-collapsed { width:auto; min-width:166px; }
+.ew-map-controls-toggle { display:flex; width:100%; justify-content:space-between; align-items:center; gap:15px; border:0; border-radius:8px; padding:9px 10px; background:#282d32; color:#ffe2cc; font:inherit; font-size:12px; font-weight:700; cursor:pointer; }
+.ew-map-controls-toggle:hover,.ew-map-controls-toggle:focus-visible { background:#43362e; outline-color:#eaa16c; }
+.ew-map-controls-content { display:flex; flex-direction:column; align-items:stretch; gap:9px; padding:9px 5px 4px; max-height:min(65vh,460px); overflow-y:auto; }
+.ew-map-controls-content[hidden] { display:none!important; }
+@media(hover:none) { .ew-map-controls-content { max-height:55dvh; } }
+@media(prefers-reduced-motion:reduce) { .ew-explore-page .ew-map-first .ew-map-controls { transition:none; } }
