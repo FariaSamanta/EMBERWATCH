@@ -219,14 +219,15 @@ function App() {
         <div>
         <span className="ew-eyebrow">WILDFIRE MONITORING</span>
         <h1>
-        {view === "dashboard" ? "Wildfire Dashboard" : view === "information" ? "Fire Information" : "Risk Details"}
+        {view === "dashboard" ? "Explore wildfire activity" : selectedArea?.name ?? "Area overview"}
         </h1>
         <p>
-        {view === "dashboard" ? "Select a location to explore wildfire risk." : view === "information" ? "Fire information and environmental conditions" : "Risk factors and current conditions"}
+        {view === "dashboard" ? "Explore monitored locations and satellite observations across Canada." : "Risk assessment and environmental conditions"}
         </p>
         </div>
         </div>
 
+      <div className="ew-dashboard-tools">
       {/* #51: public fire reports. Not an emergency service. */}
       {reporting ? (
         <ReportFire onClose={() => setReporting(false)} />
@@ -239,6 +240,8 @@ function App() {
           {REPORTS_ENABLED ? "Report a Fire" : "Report a Fire (preview)"}
         </button>
       )}
+
+      </div>
 
       {loading && (
         <p>Loading wildfire risk data...</p>
@@ -279,16 +282,14 @@ function App() {
       <DataFreshness areas={riskAreas} detections={detectionResult?.detections} />
 
       {detectionResult && !detectionLoading && (
-        <>
-          <p>{detectionSummary(detectionResult)}</p>
-          {detectionResult.detections.length === 0 && (
-            <p role="status">No wildfire detections available for the latest observations.</p>
-          )}
-        </>
+        <div className="ew-data-summary" role="status">
+          <span>{detectionSummary(detectionResult)}</span>
+          {detectionResult.detections.length === 0 && <span>No recent detections to display.</span>}
+        </div>
       )}
 
       <div className="ew-workspace">
-        <div className="ew-map-column"><div className="ew-section-heading"><div><span className="ew-overline">GEOGRAPHIC OVERVIEW</span><h2>{view === "dashboard" ? "Wildfire map" : "Selected area map"}</h2></div><span className="ew-section-meta">{riskAreas.length} monitored areas</span></div><div className="ew-map-frame">
+        <div className="ew-map-column"><div className="ew-map-frame">
           <MapContainer
             center={[45.4, -77.5]}
             zoom={7}
@@ -369,7 +370,7 @@ function App() {
             );
           })}
         </MapContainer></div>
-        <label className="ew-zone-toggle">
+        <div className="ew-map-controls"><label className="ew-zone-toggle">
           <input
             type="checkbox"
             checked={showZones}
@@ -378,19 +379,13 @@ function App() {
           Show 50 km risk zones
         </label>
         <RiskLegend />
-        <p style={{ fontSize: 14 }} aria-label="Risk zone legend">
-          Shaded zones show the 50 km area used for nearby fire history; stronger shading means a higher modeled score. Areas without a valid score have no shading. Dashed outlines indicate incomplete input data.
-        </p>
-        <p style={{ fontSize: 14 }} aria-label="Detection marker legend">
-          Detection markers: solid red = meets confidence threshold; dashed grey = low confidence.
-          Detection confidence reflects the observation, not the environmental wildfire risk score.
-        </p>
+        <details className="ew-map-help"><summary>About this map</summary><p>Shaded 50 km circles represent modeled area risk, not predicted fire spread. Dashed outlines indicate incomplete inputs. Red detection markers meet the satellite confidence threshold; grey markers do not. Detection confidence is not the same as wildfire risk.</p></details>
+        </div>
       </div>
       
         <aside className="ew-side-panel">
           <div className="ew-panel-top">
-          <span className="ew-overline">SELECT A LOCATION</span>
-          <h2>Active Detections & Monitored Areas</h2>
+          <div className="ew-locations-heading"><h2>Locations</h2><span className="ew-section-meta">{riskAreas.length} areas</span></div>
           <label className="ew-search-label" htmlFor="ew-area-search">Search monitored areas</label>
           <input id="ew-area-search" type="search" placeholder="Search location..." value={search} onChange={(event) => setSearch(event.target.value)} />
           <nav className="ew-area-list" aria-label="Monitored areas">
@@ -406,9 +401,6 @@ function App() {
           </nav>
           </div>
           <div ref={detailsRef} tabIndex={-1} className="ew-detail-panel" aria-label="Area details">
-          <span className="ew-overline">
-          {view === "risk" ? "RISK DETAILS" : "FIRE INFORMATION"}
-          </span>
           {!selectedArea ? (
             <>
               <h2>Area Details</h2>
@@ -416,7 +408,7 @@ function App() {
             </>
           ) : (
             <>
-              <div className="ew-detail-heading"><div><span className="ew-overline">FIRE INFORMATION</span><h2>{selectedArea.name ?? `Area ${selectedArea.id}`}</h2></div><button type="button" className="ew-back-button" onClick={() => { setSelectedArea(null); setShowFullDetails(false); setView("dashboard"); }}>← Back</button></div>
+              <div className="ew-detail-heading"><div><span className="ew-overline">AREA ASSESSMENT</span><h2>{selectedArea.name ?? `Area ${selectedArea.id}`}</h2></div><button type="button" className="ew-back-button" onClick={() => { setSelectedArea(null); setShowFullDetails(false); setView("dashboard"); }}>← Back</button></div>
 
               {riskState(selectedArea) === "incomplete" && (
                 <p role="status">
@@ -451,38 +443,22 @@ function App() {
                 )}
                 <hr />
 
-              <h3>Environmental Factors</h3>
-              {selectedArea.observed_at && <p>Weather observed {formatDetectionTime(selectedArea.observed_at)}</p>}
-              <p>These factors contribute to a weighted risk estimate, not a confirmed wildfire detection. Higher factor scores mean higher modeled risk; missing factors are excluded and the remaining weights are normalized.</p>
-
-              {Object.entries(factorLabels).map(([key, label]) => {
-                const value = factors[key];
-                const available =
-                  value !== null &&
-                  value !== undefined &&
-                  Number.isFinite(value);
-
-                return (
-                  <p key={key}>
-                    <strong>{label}: </strong>
-                    {available
-                      ? `${value}${factorUnits[key] ? ` ${factorUnits[key]}` : ""}`
-                      : "Unavailable"}
-                  </p>
-                );
-              })}
-
-              {selectedArea.missing_inputs?.length > 0 && (
-                <p>
-                  <strong>Missing inputs: </strong>
-                  {missingInputNames(selectedArea).join(", ")}
-                </p>
-              )}
-
-              <p>
-                <strong>Assessment complete: </strong>
-                {selectedArea.is_complete ? "Yes" : "No"}
-              </p>
+              <div className="ew-assessment-summary">
+                {selectedArea.observed_at && <p>Weather observed {formatDetectionTime(selectedArea.observed_at)}</p>}
+                <p>{selectedArea.is_complete ? "All modeled inputs available" : `Partial assessment · ${Math.round((selectedArea.coverage ?? 0) * 100)}% input coverage`}</p>
+              </div>
+              <details className="ew-factor-disclosure">
+                <summary>Environmental conditions</summary>
+                <div className="ew-factor-list">
+                  {Object.entries(factorLabels).map(([key, label]) => {
+                    const value = factors[key];
+                    const available = value !== null && value !== undefined && Number.isFinite(value);
+                    return <div className="ew-factor-row" key={key}><span>{label}</span><strong>{available ? `${value}${factorUnits[key] ? ` ${factorUnits[key]}` : ""}` : "Unavailable"}</strong></div>;
+                  })}
+                </div>
+                {selectedArea.missing_inputs?.length > 0 && <p>Missing: {missingInputNames(selectedArea).join(", ")}</p>}
+                <p>These environmental factors contribute to an experimental risk estimate, not a confirmed fire.</p>
+              </details>
 
               <button type="button" className="ew-details-button" onClick={() => {setShowFullDetails((v) => !v);setView((v) => v === "risk" ? "information" : "risk");}} aria-expanded={showFullDetails}>{showFullDetails ? "← Back to Fire Information" : "View Risk Details →"}</button>
               <div className={showFullDetails ? "ew-expanded-details" : "ew-collapsed-details"}><h3>How the risk estimate is calculated</h3>
@@ -496,9 +472,7 @@ function App() {
               </ul>
               <p>Model: {selectedArea.model_version ?? "Unavailable"}. Factor scores and weights are provisional; this is not a validated real-time fire forecast.</p>
 
-              </div><button onClick={() => { setSelectedArea(null); setShowFullDetails(false); setView("dashboard"); }}>
-                Clear selection
-              </button>
+              </div>
             </>
           )}
         </div></aside>
