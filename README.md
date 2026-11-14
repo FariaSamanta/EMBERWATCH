@@ -8,7 +8,7 @@
 
 ## Overview
 
-EmberWatch is a deployed React/Leaflet dashboard backed by a Flask API and Supabase PostgreSQL/PostGIS. It helps users explore monitored Canadian locations, historical and recent NASA FIRMS fire detections, environmental observations, and explainable area-level wildfire risk. **Detection confidence** (certainty associated with a satellite hotspot) and **risk** (a weighted estimate for a geographic area) are different quantities.
+EmberWatch addresses the difficulty of interpreting wildfire observations and environmental risk information across different sources in one accessible interface. It is intended for students, researchers, and members of the public who want to explore and understand wildfire-related data—not for emergency responders making operational decisions. The deployed React/Leaflet dashboard, Flask API, and Supabase PostgreSQL/PostGIS backend bring together monitored Canadian locations, historical and recent NASA FIRMS fire detections, environmental observations, and explainable area-level wildfire risk. **Detection confidence** (certainty associated with a satellite hotspot) and **risk** (a weighted estimate for a geographic area) are different quantities.
 
 ## Current functionality
 
@@ -24,6 +24,12 @@ EmberWatch is a deployed React/Leaflet dashboard backed by a Flask API and Supab
 | Historical model validation (#57) | Reproducible comparison of seven selected wildfire events against prior-year and winter dates. Fire days scored higher in all seven cases, but only one reached HIGH. This small, selected sample **does not establish accuracy or calibration**. |
 
 **Not yet merged into `main` (as of November 14, 2026):** PR [#100](https://github.com/RianaMalhotra/EmberWatch/pull/100) proposes further external-data and processing-failure hardening; PR [#101](https://github.com/RianaMalhotra/EmberWatch/pull/101) proposes a public fire-report submission backend. Do not treat their features as released until those PRs merge and required database migrations/deployment configuration are applied. See the [pull requests](https://github.com/RianaMalhotra/EmberWatch/pulls) for live status.
+
+## Feature highlight — interactive risk map
+
+**Try it:** Open the [live EmberWatch dashboard](https://ember-watch-xi.vercel.app/). On the Leaflet map, select a monitored area to inspect its computed risk level, score, environmental factors, and missing-data information. Toggle **Show 50 km risk zones** to display or hide the shaded circular assessment footprints while retaining selectable area markers. Explore the satellite detection markers to see reported hotspot locations, timestamps, and detection confidence.
+
+The map makes two related but different signals visible together: **area risk** is calculated from environmental factors and historical detections, while **detection confidence** describes a particular satellite observation. Incomplete scores are identified rather than presented as certain. The overlay is a visual approximation around monitored locations, not a prediction of fire spread. A live screenshot can be captured from the dashboard for reports or presentations; the README does not embed a screenshot that might become stale.
 
 ## Risk model and data provenance
 
@@ -136,6 +142,23 @@ tests/            Cross-component and data-processing tests
 - NDVI remains unavailable. Missing environmental values lower coverage, and stale observations may make risk estimates unrepresentative of present conditions.
 - Scheduled data refresh, live database connectivity, and deployment health require ongoing verification.
 - Further model calibration, broader unbiased evaluation, public-report workflow integration, and reliability hardening remain follow-up work.
+
+## Project tools and links
+
+| Tool / platform | How we use it | URL |
+| --- | --- | --- |
+| GitHub repository | Source code, branches, version history, and collaboration | [EmberWatch repository](https://github.com/RianaMalhotra/EmberWatch) |
+| GitHub Projects | **Project management tool** for the prioritized product backlog, sprint planning, task ownership, and Kanban workflow | [Project board](https://github.com/users/RianaMalhotra/projects/1) |
+| GitHub Issues | User stories, acceptance criteria, defects, and task tracking | [Issues](https://github.com/RianaMalhotra/EmberWatch/issues) |
+| GitHub Pull Requests | Code review and feature integration | [Pull requests](https://github.com/RianaMalhotra/EmberWatch/pulls) |
+| GitHub Actions | CI, automated tests, and scheduled data workflows | [Actions](https://github.com/RianaMalhotra/EmberWatch/actions) |
+| Vercel | Hosted React/Vite frontend | [Live dashboard](https://ember-watch-xi.vercel.app/) |
+| Render | Hosting for the Flask backend | [Render](https://render.com/) |
+| Supabase | Hosted PostgreSQL/PostGIS database | [Supabase](https://supabase.com/) |
+| NASA FIRMS | Satellite active-fire observation source | [NASA FIRMS](https://firms.modaps.eosdis.nasa.gov/) |
+| Open-Meteo | Weather and elevation data source | [Open-Meteo](https://open-meteo.com/) |
+
+For the Milestone 5 group submission, the **prioritized backlog screenshot**, Sprint 3 task estimates versus actual hours, and Milestone 6 estimates belong in the submitted group PDF; they are not replacements for the README requirements.
 
 ## Team and collaboration
 
