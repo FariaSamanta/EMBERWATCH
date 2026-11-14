@@ -1160,3 +1160,15 @@
 .ew-report-disclaimer { color:#c3ada4; font-size:12px; }
 .ew-report-panel { margin:0 0 18px; padding:17px; border:1px solid #82443c; border-radius:14px; background:rgba(34,29,32,.94); }
 @media(max-width:680px) { .ew-report-cta { width:100%; } .ew-report-disclaimer { font-size:11px; } .ew-report-panel { padding:12px; } }
+
+
+/* Nationwide place suggestions and clearly scoped fire observations. */
+.ew-place-suggestions { display:grid; gap:4px; padding:7px; margin:7px 0 10px; border:1px solid #6e493a; border-radius:11px; background:#191d23; box-shadow:0 10px 24px #0005; max-height:220px; overflow:auto; }
+.ew-place-suggestions button { display:flex; justify-content:space-between; gap:10px; padding:10px 12px; border:0; border-radius:7px; background:transparent; color:#f8e7db; text-align:left; cursor:pointer; font-size:13px; }
+.ew-place-suggestions button:hover,.ew-place-suggestions button:focus-visible { background:#513225; color:#fff; }
+.ew-place-suggestions button span { color:#ffad7c; }
+.ew-searched-place { padding:17px; margin:10px; border:1px solid #9b5a3d; border-radius:12px; background:#34241f; color:#f6e5da; }
+.ew-searched-place h2 { font-family:"Barlow Condensed","Arial Narrow",sans-serif; font-size:26px; margin:0 0 8px; color:#ffca9c; }
+.ew-searched-place p { font-size:12px; line-height:1.55; color:#e5cfc0; }
+.ew-searched-place strong { color:#fff1df; }
+.ew-searched-place button { background:#513225; color:#ffd4ba; border:1px solid #9b5a3d; border-radius:8px; padding:8px 11px; cursor:pointer; }
