@@ -14,8 +14,8 @@ vi.mock("react-leaflet", async () => {
   const React = await import("react");
 
   return {
-    MapContainer: ({ children }) =>
-      React.createElement("div", { "data-testid": "map" }, children),
+    MapContainer: ({ children, center, zoom }) =>
+      React.createElement("div", { "data-testid": "map", "data-center": center.join(","), "data-zoom": String(zoom) }, children),
 
     TileLayer: () => null,
     Popup: ({ children }) => React.createElement("div", { "data-testid": "leaflet-popup" }, children),
@@ -226,6 +226,8 @@ describe("Wildfire risk map", () => {
 
     expect(screen.getByLabelText("Map legend")).toHaveTextContent("incomplete");
     expect(screen.getByRole("button", { name: /close map layers and legend/i })).toBeInTheDocument();
+    expect(screen.getByTestId("map")).toHaveAttribute("data-center", "54.5,-119");
+    expect(screen.getByTestId("map")).toHaveAttribute("data-zoom", "6");
     expect(screen.getByText("Map legend").closest("details")).toHaveAttribute("open");
   });
 
