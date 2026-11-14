@@ -91,6 +91,10 @@ function App() {
   const [selectedArea, setSelectedArea] = useState(null);
   const [showZones, setShowZones] = useState(false);
   const [search, setSearch] = useState("");
+  const [placeMatches, setPlaceMatches] = useState([]);
+  const [placeLoading, setPlaceLoading] = useState(false);
+  const [placeError, setPlaceError] = useState("");
+  const [searchedPlace, setSearchedPlace] = useState(null);
   const [showFullDetails, setShowFullDetails] = useState(false);
   const [view, setView] = useState("dashboard");
   const [page, setPage] = useState("home");
@@ -186,6 +190,58 @@ function App() {
     };
   }, [riskAttempt]);
 
+  // Open-Meteo's Canadian geocoding search supports autocomplete beyond the monitored-area list.
+  useEffect(() => {
+    const query = search.trim();
+    if (query.length < 2) {
+      setPlaceMatches([]);
+      setPlaceLoading(false);
+      setPlaceError("");
+      return;
+    }
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      setPlaceLoading(true);
+      setPlaceError("");
+      try {
+        const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=10&language=en&format=json&countryCode=CA`;
+        const response = await fetch(url, { signal: controller.signal });
+        if (!response.ok) throw new Error("Location search is unavailable");
+        const data = await response.json();
+        if (!controller.signal.aborted) {
+          setPlaceMatches((Array.isArray(data.results) ? data.results : []).filter(
+            (place) => place.country_code === "CA" && Number.isFinite(place.latitude) && Number.isFinite(place.longitude)
+          ).slice(0, 6));
+        }
+      } catch (error) {
+        if (!controller.signal.aborted) { setPlaceMatches([]); setPlaceError("Location suggestions are unavailable. Try again."); }
+      } finally {
+        if (!controller.signal.aborted) setPlaceLoading(false);
+      }
+    }, 300);
+    return () => { clearTimeout(timer); controller.abort(); };
+  }, [search]);
+
+  function choosePlace(place) {
+    const name = [place.name, place.admin1].filter(Boolean).join(", ");
+    const monitored = riskAreas.find((area) => (area.name ?? "").toLowerCase() === place.name.toLowerCase());
+    setSearch(name);
+    setPlaceMatches([]);
+    setSearchedPlace({ name, latitude: place.latitude, longitude: place.longitude });
+    if (monitored) selectArea(monitored);
+    else { setSelectedArea(null); setShowFullDetails(false); setView("dashboard"); }
+    setPage("explore");
+  }
+
+  const nearbyDetections = searchedPlace && detectionResult?.detections
+    ? detectionResult.detections.filter((d) => {
+        const lat = (d.latitude - searchedPlace.latitude) * Math.PI / 180;
+        const lon = (d.longitude - searchedPlace.longitude) * Math.PI / 180;
+        const a = Math.sin(lat / 2) ** 2 + Math.cos(searchedPlace.latitude * Math.PI / 180) * Math.cos(d.latitude * Math.PI / 180) * Math.sin(lon / 2) ** 2;
+        return 12742 * Math.asin(Math.min(1, Math.sqrt(a))) <= 50;
+      })
+    : [];
+
   function retryRiskAreas() {
     setLoading(true);
     setError(null);
@@ -210,6 +266,7 @@ function App() {
   function selectArea(area) {
     setPage("explore");
     setSelectedArea(area);
+    setSearchedPlace(null);
     setShowFullDetails(false);
     setView("information");
     if (window.matchMedia?.("(max-width: 860px)").matches) {
@@ -329,7 +386,7 @@ function App() {
             style={{ height: "100%", width: "100%" }}
           >
             <RefreshMapLayout active={page === "explore"} />
-            <FocusSelected area={selectedArea} />
+            <FocusSelected area={searchedPlace ?? selectedArea} />
             <TileLayer
               attribution="&copy; OpenStreetMap contributors"
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -337,6 +394,7 @@ function App() {
 
             <FitToAreas areas={riskAreas} />
 
+            {searchedPlace && <CircleMarker center={[searchedPlace.latitude, searchedPlace.longitude]} radius={11} pathOptions={{color:"#ffb36c",fillColor:"#ff7843",fillOpacity:0.8,weight:3}}><Tooltip permanent direction="top"><strong>{searchedPlace.name}</strong><br />Selected location</Tooltip></CircleMarker>}
             {/* Draw non-interactive risk zones below clickable area and detection markers. */}
             {showZones && riskAreas
               .filter((area) => Number.isFinite(area.latitude) && Number.isFinite(area.longitude))
@@ -421,8 +479,11 @@ function App() {
           <div className="ew-panel-top">
           <div className="ew-locations-heading"><h2>Find a place</h2><span className="ew-section-meta">{riskAreas.length} areas</span></div>
           <label className="ew-search-label" htmlFor="ew-area-search">Search the monitored locations</label>
-          <input id="ew-area-search" type="search" placeholder="Search city or monitored area..." value={search} onChange={(event) => { setSearch(event.target.value); if (view !== "dashboard") setView("dashboard"); }} onKeyDown={(event) => { if (event.key === "Enter" && filteredAreas.length > 0) selectArea(filteredAreas[0]); }} />
-          {search.trim() && <p className="ew-search-count">{filteredAreas.length} matching monitored {filteredAreas.length === 1 ? "area" : "areas"} · Press Enter to zoom to first result</p>}
+          <input id="ew-area-search" type="search" role="combobox" aria-autocomplete="list" aria-expanded={placeMatches.length > 0} aria-controls="ew-place-suggestions" placeholder="Search anywhere in Canada..." value={search} onChange={(event) => { setSearch(event.target.value); if (view !== "dashboard") setView("dashboard"); }} onKeyDown={(event) => { if (event.key === "Enter") { if (placeMatches.length > 0) choosePlace(placeMatches[0]); else if (filteredAreas.length > 0) selectArea(filteredAreas[0]); } }} />
+          {placeLoading && <p className="ew-search-count" role="status">Finding places...</p>}
+          {placeError && <p className="ew-search-count" role="status">{placeError}</p>}
+          {placeMatches.length > 0 && <div id="ew-place-suggestions" className="ew-place-suggestions" role="listbox" aria-label="Canadian place suggestions">{placeMatches.map((place) => <button type="button" role="option" aria-selected={false} key={place.id} onClick={() => choosePlace(place)}>{place.name}{place.admin1 ? `, ${place.admin1}` : ""}<span>↗</span></button>)}</div>}
+          {search.trim() && !placeLoading && placeMatches.length === 0 && !placeError && <p className="ew-search-count">Choose a monitored area below, or try another Canadian place name.</p>}
           <nav className="ew-area-list" aria-label="Monitored areas">
           {filteredAreas.map((area) => <button type="button" aria-pressed={selectedArea?.id === area.id} className={`ew-area-row ${selectedArea?.id === area.id ? "is-selected" : ""}`} key={area.id} onClick={() => selectArea(area)}>
           <span className="ew-area-name">
@@ -434,8 +495,9 @@ function App() {
           <span aria-hidden="true">›</span>
           </button>)}{filteredAreas.length === 0 && <p className="ew-empty-search">No matching monitored areas.</p>}
           </nav>
-          <details className="ew-search-footnote"><summary>Why only these places?</summary><p>Risk estimates are currently available for monitored areas only. Searching does not generate new predictions.</p></details>
+          <details className="ew-search-footnote"><summary>Where does the information come from?</summary><p>Search uses Open-Meteo geocoding for Canadian places. Model risk scores are only available for monitored areas; other locations show nearby detections from the loaded dataset, not a new risk estimate.</p></details>
           </div>
+          {searchedPlace && <section className="ew-searched-place" aria-label="Searched place fire information"><h2>{searchedPlace.name}</h2><p>Location: {searchedPlace.latitude.toFixed(3)}, {searchedPlace.longitude.toFixed(3)}</p><p><strong>Risk score: Not available</strong> — this location is outside the currently monitored risk assessments.</p><p><strong>{nearbyDetections.length} nearby satellite detections</strong> within 50 km in the loaded records (up to 200 latest records nationwide).</p><p>These records may be historical and are not a live fire status. No nearby records does not mean no fires.</p><button type="button" onClick={() => { setSearchedPlace(null); setSearch(""); }}>Clear location</button></section>}
           <div ref={detailsRef} tabIndex={-1} className="ew-detail-panel" aria-label="Area details">
           {!selectedArea ? (
             <>
