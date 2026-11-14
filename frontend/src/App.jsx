@@ -113,7 +113,7 @@ function App() {
   const [showDataNotes, setShowDataNotes] = useState(false);
   const [showAreaList, setShowAreaList] = useState(false);
   const [mapLayer, setMapLayer] = useState("both");
-  const [mapControlsOpen, setMapControlsOpen] = useState(false);
+  const [mapControlsOpen, setMapControlsOpen] = useState(true);
   const [mapZoom, setMapZoom] = useState(7);
   const [clusterZoomTarget, setClusterZoomTarget] = useState(null);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
@@ -403,8 +403,8 @@ function App() {
         <div className="ew-ember-field" aria-hidden="true"><i /><i /><i /><i /><i /><i /><i /><i /></div>
         <div className="ew-map-column"><div className="ew-map-title"><span className="ew-map-title-dot" /> MAP <span className="ew-map-title-caption">Explore locations and satellite observations</span></div><div className="ew-map-frame">
           <MapContainer
-            center={[61, -100]}
-            zoom={4}
+            center={[54.5, -119]}
+            zoom={6}
             maxBounds={[[40, -143], [85, -50]]}
             maxBoundsViscosity={1}
             minZoom={3}
@@ -418,7 +418,7 @@ function App() {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
 
-            <FitToAreas areas={riskAreas} />
+
 
             {searchedPlace && <CircleMarker center={[searchedPlace.latitude, searchedPlace.longitude]} radius={11} pathOptions={{color:"#ffb36c",fillColor:"#ff7843",fillOpacity:0.8,weight:3}}><Tooltip permanent direction="top"><strong>{searchedPlace.name}</strong><br />Selected location</Tooltip></CircleMarker>}
             {/* Draw non-interactive risk zones below clickable area and detection markers. */}
