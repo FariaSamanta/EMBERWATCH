@@ -93,7 +93,7 @@ function App() {
   const [search, setSearch] = useState("");
   const [showFullDetails, setShowFullDetails] = useState(false);
   const [view, setView] = useState("dashboard");
-  const [page, setPage] = useState("explore");
+  const [page, setPage] = useState("home");
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const detailsRef = useRef(null);
