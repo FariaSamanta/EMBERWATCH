@@ -143,6 +143,41 @@ tests/            Cross-component and data-processing tests
 - Scheduled data refresh, live database connectivity, and deployment health require ongoing verification.
 - Further model calibration, broader unbiased evaluation, public-report workflow integration, and reliability hardening remain follow-up work.
 
+## Milestone 5 implementations — Sprint 3 and Sprint 4
+
+This section records **merged implementation work** for the third sprint and subsequent Sprint 4 progress. The authoritative current state is the [GitHub project board](https://github.com/users/RianaMalhotra/projects/1), [issues](https://github.com/RianaMalhotra/EmberWatch/issues), and [merged PR history](https://github.com/RianaMalhotra/EmberWatch/pulls?q=is%3Apr+is%3Amerged). Milestone 5's separate group report contains individual task estimates, actual hours, backlog screenshots, and Milestone 6 planning tables.
+
+### Sprint 3 — detection integration, explainable risk, and deployment
+
+| Workstream | Implemented outcome | Evidence |
+| --- | --- | --- |
+| Detection dashboard (#43) | Connected classified NASA FIRMS observations to map displays; added loading, empty, error, and integration-test coverage | [PR #91](https://github.com/RianaMalhotra/EmberWatch/pull/91), [PR #67](https://github.com/RianaMalhotra/EmberWatch/pull/67) |
+| Detection data quality and history (#46) | Validated timestamps, duplicates, and ingestion; added historical detection retrieval with geographic/time filtering and a frontend history client | [PR #83](https://github.com/RianaMalhotra/EmberWatch/pull/83), [#84](https://github.com/RianaMalhotra/EmberWatch/pull/84), [#85](https://github.com/RianaMalhotra/EmberWatch/pull/85), [#89](https://github.com/RianaMalhotra/EmberWatch/pull/89) |
+| Risk transparency (#44, #45) | Added environmental-factor explanations on area selection and validation of risk scores before display | [PR #80](https://github.com/RianaMalhotra/EmberWatch/pull/80), [#81](https://github.com/RianaMalhotra/EmberWatch/pull/81) |
+| Data completeness and robustness (#27, #28) | Verified database-backed area details and distinguished incomplete/unscored assessments from valid scores | [PR #74](https://github.com/RianaMalhotra/EmberWatch/pull/74), [#75](https://github.com/RianaMalhotra/EmberWatch/pull/75) |
+| Deployment and architecture | Deployed frontend/backend with Vercel and Render, added Gunicorn and deployment guidance, and extracted shared modules | [PR #86](https://github.com/RianaMalhotra/EmberWatch/pull/86), [#88](https://github.com/RianaMalhotra/EmberWatch/pull/88), [#96](https://github.com/RianaMalhotra/EmberWatch/pull/96) |
+
+**Sprint 3 outcome:** The project advanced beyond a three-circle mock map to database-backed monitored areas, satellite-derived detection views, historical retrieval, and environmental-factor explanations. This is an educational integration milestone, not evidence of continuous live-feed availability or validated wildfire prediction.
+
+### Sprint 4 — integrated risk zones, freshness, testing, and validation
+
+| Workstream | Implemented outcome | Evidence |
+| --- | --- | --- |
+| Risk zones and removal of mock fallback (#44) | Rendered optional 50 km risk footprints using actual area scores; preserved selection markers and distinguished incomplete assessments | [PR #99](https://github.com/RianaMalhotra/EmberWatch/pull/99) |
+| Weather and detection refresh | Added daily weather refresh with freshness indicators and scheduled recent FIRMS ingestion (subject to external-service and deployment health) | [PR #93](https://github.com/RianaMalhotra/EmberWatch/pull/93), [#94](https://github.com/RianaMalhotra/EmberWatch/pull/94) |
+| Dashboard usability | Improved responsive layout, navigation, and presentation | [PR #90](https://github.com/RianaMalhotra/EmberWatch/pull/90), [#92](https://github.com/RianaMalhotra/EmberWatch/pull/92) |
+| React–Flask/Supabase contracts (#50, #63) | Added client/backend contract and failure tests and documented environment/database integration requirements | [PR #97](https://github.com/RianaMalhotra/EmberWatch/pull/97), [#98](https://github.com/RianaMalhotra/EmberWatch/pull/98) |
+| Model explainability and historical validation (#57) | Checked deterministic scoring, missing-data boundaries, factor weights and provenance; compared seven selected fire days with control dates | [PR #102](https://github.com/RianaMalhotra/EmberWatch/pull/102), [validation documentation](docs/risk-model.md) |
+| Public reporting interface (#51) | Added a frontend Report a Fire form; server-side report persistence remains separate work | [PR #76](https://github.com/RianaMalhotra/EmberWatch/pull/76) |
+
+**Not yet implemented on `main` as of this update:** [PR #100](https://github.com/RianaMalhotra/EmberWatch/pull/100) (additional external-source and model-failure hardening) and [PR #101](https://github.com/RianaMalhotra/EmberWatch/pull/101) (validated, rate-limited public-report storage) remain open. These should not be described as completed Sprint 4 deliverables.
+
+### Verification and remaining deliverables
+
+The merged implementation is supported by backend Pytest coverage checks, frontend Vitest contracts, lint/build checks, and data/model validation scripts. To reproduce them, use the [Tests and verification](#tests-and-verification) commands above and review [GitHub Actions](https://github.com/RianaMalhotra/EmberWatch/actions). Tests with mocks do not establish that the deployed API, Supabase database, or scheduled feeds are currently healthy.
+
+For the final milestone, the team should verify end-to-end deployed behavior, reconcile and review outstanding PRs, confirm database migrations and data freshness, address model calibration and incomplete NDVI inputs, and prepare the final demonstration, presentation, and report. See the [prioritized backlog](https://github.com/users/RianaMalhotra/projects/1) for up-to-date ownership and status.
+
 ## Project tools and links
 
 | Tool / platform | How we use it | URL |
