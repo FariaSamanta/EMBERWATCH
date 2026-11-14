@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:wght@400;500;600;700&display=swap');
 /* Prototype-inspired EmberWatch visual layer;
  scoped to avoid altering existing widgets. */
 .ew-app {
@@ -1068,7 +1069,7 @@
 
 /* Editorial wildfire typography: Barlow Condensed headlines, Source Sans 3 copy,
    IBM Plex Mono data labels. Distinctive, legible and not dependent on emoji styling. */
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:wght@400;500;600;700&display=swap');
+
 .ew-app { font-family:"Source Sans 3","Segoe UI",sans-serif; font-size:15px; }
 .ew-app button,.ew-app input,.ew-app summary { font-family:inherit; }
 .ew-brand,.ew-page-heading h1,.ew-home-hero h1,.ew-home-preview h2,.ew-learn h1,.ew-learn h2,.ew-locations-heading h2,.ew-detail-panel h2 {
