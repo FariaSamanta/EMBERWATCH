@@ -19,8 +19,11 @@ export function clusterDetections(detections, zoom) {
   }));
 }
 
-export function MapZoomObserver({ onZoom }) {
+export function MapZoomObserver({ onZoom, zoomTarget }) {
   const map = useMap();
+  useEffect(() => {
+    if (zoomTarget && typeof map.flyTo === "function") map.flyTo([zoomTarget.latitude, zoomTarget.longitude], 8, { animate: true, duration: 0.5 });
+  }, [map, zoomTarget]);
   useEffect(() => {
     if (typeof map.on !== "function") return;
     const update = () => onZoom(map.getZoom?.() ?? 7);
