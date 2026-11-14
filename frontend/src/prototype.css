@@ -1346,3 +1346,27 @@
 .ew-map-controls-content[hidden] { display:none!important; }
 @media(hover:none) { .ew-map-controls-content { max-height:55dvh; } }
 @media(prefers-reduced-motion:reduce) { .ew-explore-page .ew-map-first .ew-map-controls { transition:none; } }
+
+
+/* True icon-only collapse: shrink the entire floating container, not just its text. */
+.ew-explore-page:not(.ew-page-hidden) .ew-map-first .ew-map-controls.ew-map-controls-collapsed {
+  display:block!important; width:44px!important; min-width:0!important; max-width:44px!important;
+  height:44px!important; min-height:0!important; max-height:44px!important;
+  padding:3px!important; margin:0!important; gap:0!important; overflow:hidden!important;
+  border-radius:12px!important; box-shadow:0 5px 16px #0007;
+}
+.ew-explore-page:not(.ew-page-hidden) .ew-map-first .ew-map-controls.ew-map-controls-open {
+  width:min(245px,calc(100vw - 32px))!important; min-width:0!important;
+  height:auto!important; max-height:min(75dvh,520px)!important; padding:6px!important;
+  overflow:visible!important; border-radius:13px;
+}
+.ew-map-controls-collapsed .ew-map-controls-toggle {
+  display:flex; align-items:center; justify-content:center; width:36px; height:36px;
+  min-width:0; padding:0; border-radius:9px; gap:0;
+}
+.ew-map-controls-collapsed .ew-map-controls-content { display:none!important; }
+.ew-map-controls-icon { font-size:21px; line-height:1; flex-shrink:0; }
+.ew-map-controls-open .ew-map-controls-toggle { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.ew-map-controls-label { flex:1; text-align:left; white-space:nowrap; font-size:12px; }
+.ew-map-controls-indicator { font-size:19px; line-height:1; }
+.ew-map-controls-collapsed .ew-map-controls-indicator { display:none; }
