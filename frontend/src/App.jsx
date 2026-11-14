@@ -118,6 +118,9 @@ function App() {
   const [mapLayer, setMapLayer] = useState("both");
   const [mapControlsOpen, setMapControlsOpen] = useState(true);
   const [mapZoom, setMapZoom] = useState(6);
+  useEffect(() => {
+    if (page === "explore") setMapControlsOpen(true);
+  }, [page]);
   const [clusterZoomTarget, setClusterZoomTarget] = useState(null);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(true);
