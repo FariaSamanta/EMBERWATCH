@@ -103,6 +103,7 @@ function App() {
   const [placeLoading, setPlaceLoading] = useState(false);
   const [placeError, setPlaceError] = useState("");
   const [searchedPlace, setSearchedPlace] = useState(null);
+  const [selectedDetection, setSelectedDetection] = useState(null);
   const [showFullDetails, setShowFullDetails] = useState(false);
   const [view, setView] = useState("dashboard");
   const [page, setPage] = useState("home");
@@ -236,6 +237,7 @@ function App() {
     setSearch(name);
     setPlaceMatches([]);
     setSearchedPlace({ name, latitude: place.latitude, longitude: place.longitude });
+    setSelectedDetection(null);
     if (monitored) selectArea(monitored);
     else { setSelectedArea(null); setShowFullDetails(false); setView("dashboard"); }
     setPage("explore");
@@ -274,6 +276,7 @@ function App() {
   function selectArea(area) {
     setPage("explore");
     setSelectedArea(area);
+    setSelectedDetection(null);
     setSearchedPlace(null);
     setShowFullDetails(false);
     setView("information");
@@ -289,7 +292,7 @@ function App() {
     <div className={`ew-app ew-view-${view}`}>
       <header className="ew-header">
         <div className="ew-header-left">
-        {page === "explore" && view !== "dashboard" && <button className="ew-nav-back" type="button" onClick={() => { if(view === "risk") {setView("information");setShowFullDetails(false);} else {setView("dashboard");setSelectedArea(null);} }}>← Back</button>}
+        {page === "explore" && view !== "dashboard" && <button className="ew-nav-back" type="button" onClick={() => { if(view === "risk") {setView("information");setShowFullDetails(false);} else {setView("dashboard");setSelectedArea(null);setSelectedDetection(null);} }}>← Back</button>}
         <button type="button" className="ew-brand ew-brand-button" aria-label="Go to EmberWatch home" onClick={() => {navigateTo("home");setView("dashboard");}}>
         <span className="ew-brand-icon" aria-hidden="true">🔥</span>
         <span>EMBER<span className="ew-brand-accent">WATCH</span>
@@ -445,6 +448,7 @@ function App() {
                 key={`detection-${detection.id}`}
                 position={[detection.latitude, detection.longitude]}
                 icon={fireMarkerIcon(detection.classification === "low_confidence")}
+                eventHandlers={{ click: () => { setSelectedDetection(detection); setSelectedArea(null); setSearchedPlace(null); setView("information"); setShowFullDetails(false); if (window.matchMedia?.("(max-width: 860px)").matches) requestAnimationFrame(() => detailsRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" })); } }}
               >
                 <Popup>
                   <strong>{classificationLabel(detection)}</strong>
@@ -504,7 +508,16 @@ function App() {
           </div>
           {searchedPlace && <section className="ew-searched-place" aria-label="Searched place fire information"><h2>{searchedPlace.name}</h2><p>Location: {searchedPlace.latitude.toFixed(3)}, {searchedPlace.longitude.toFixed(3)}</p><p><strong>Risk score: Not available</strong> — this location is outside the currently monitored risk assessments.</p><p><strong>{nearbyDetections.length} nearby satellite detections</strong> within 50 km in the loaded records (up to 200 latest records nationwide).</p><p>These records may be historical and are not a live fire status. No nearby records does not mean no fires.</p><button type="button" onClick={() => { setSearchedPlace(null); setSearch(""); }}>Clear location</button></section>}
           <div ref={detailsRef} tabIndex={-1} className="ew-detail-panel" aria-label="Area details">
-          {!selectedArea ? (
+          {selectedDetection ? (
+            <section className="ew-detection-details" aria-label="Satellite detection details">
+              <div className="ew-detail-heading"><div><span className="ew-overline">SATELLITE FIRE OBSERVATION</span><h2>🔥 {classificationLabel(selectedDetection)}</h2></div><button type="button" className="ew-back-button" onClick={() => { setSelectedDetection(null); setView("dashboard"); }}>← Back</button></div>
+              <p><strong>Detected:</strong> {formatDetectionTime(selectedDetection.timestamp)}</p>
+              <p><strong>Location:</strong> {formatCoordinates(selectedDetection.latitude, selectedDetection.longitude)}</p>
+              <p><strong>Confidence:</strong> {formatConfidence(selectedDetection.confidence)}</p>
+              <p>This is a satellite hotspot observation, not a confirmed wildfire or an environmental risk score.</p>
+              <p>Environmental risk for this exact point is not calculated. Select a monitored risk circle to view its modeled risk score and factors.</p>
+            </section>
+          ) : !selectedArea ? (
             <>
               <h2>Pick a place</h2>
               <p>Tap a location to see its risk score and what goes into it.</p>
