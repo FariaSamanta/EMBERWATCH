@@ -314,7 +314,7 @@ function App() {
 
       <div className="ew-workspace">
         <div className="ew-ember-field" aria-hidden="true"><i /><i /><i /><i /><i /><i /><i /><i /></div>
-        <div className="ew-map-column"><div className="ew-map-title"><span className="ew-map-title-dot" /> LIVE MAP <span className="ew-map-title-caption">MONITORED REGIONS</span></div><div className="ew-map-frame">
+        <div className="ew-map-column"><div className="ew-map-title"><span className="ew-map-title-dot" /> MAP EXPLORER <span className="ew-map-title-caption">MONITORED REGIONS</span></div><div className="ew-map-frame">
           <MapContainer
             center={[45.4, -77.5]}
             zoom={7}
