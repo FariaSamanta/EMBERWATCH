@@ -500,7 +500,7 @@ function App() {
         </label>
         <details className="ew-legend-disclosure" open><summary>Map legend</summary><RiskLegend /></details>
         <details className="ew-map-help"><summary>Map information</summary><p aria-label="Risk zone legend">Shaded risk zones represent the 50 km modeled footprint, not predicted fire spread.</p><p aria-label="Detection marker legend">Flame icons mark satellite detections: bright flame = meets confidence threshold; faded flame = low confidence. Detection confidence reflects the observation, not the environmental wildfire risk score.</p><p>Shaded 50 km circles represent modeled area risk, not predicted fire spread. Dashed outlines indicate incomplete inputs. Bright flame icons meet the satellite confidence threshold; faded flame icons do not. Detection confidence is not the same as wildfire risk.</p></details>
-        </div></div>
+        </div></div></div>
         <div className="ew-map-side-window" aria-label="Location search and details">
         <aside className={`ew-side-panel ${selectedArea || selectedDetection || searchedPlace ? "ew-has-selection" : ""} ${detailsExpanded ? "ew-sheet-expanded" : ""}`}>
           <div className="ew-panel-top"><button type="button" className="ew-search-collapse" aria-expanded={searchExpanded} onClick={() => setSearchExpanded((v) => !v)}>{searchExpanded ? "− Hide search" : "⌕ Search places"}</button><div className={searchExpanded ? "ew-search-body" : "ew-search-body ew-search-body-hidden"}>
@@ -611,7 +611,7 @@ function App() {
             </>
           )}
         </div></aside></div>
-      </div></div></div></main>
+      </div></div></main>
       <AshDetective areas={riskAreas} detections={detectionResult?.detections ?? []} selectedArea={selectedArea} searchedPlace={searchedPlace} />
     </div>
   );
