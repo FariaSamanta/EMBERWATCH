@@ -114,6 +114,7 @@ function App() {
   const [showAreaList, setShowAreaList] = useState(false);
   const [mapLayer, setMapLayer] = useState("both");
   const [mapZoom, setMapZoom] = useState(7);
+  const [clusterZoomTarget, setClusterZoomTarget] = useState(null);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(true);
   const menuRef = useRef(null);
@@ -406,7 +407,7 @@ function App() {
             style={{ height: "100%", width: "100%" }}
           >
             <RefreshMapLayout active={page === "explore"} />
-            <MapZoomObserver onZoom={setMapZoom} />
+            <MapZoomObserver onZoom={setMapZoom} zoomTarget={clusterZoomTarget} />
             <FocusSelected area={searchedPlace ?? selectedArea} />
             <TileLayer
               attribution="&copy; OpenStreetMap contributors"
@@ -466,7 +467,7 @@ function App() {
                 position={[cluster.latitude, cluster.longitude]}
                 icon={icon}
                 eventHandlers={{ click: () => {
-                  if (clustered) { setMapZoom(7); setSelectedDetection(null); return; }
+                  if (clustered) { setClusterZoomTarget({ latitude: cluster.latitude, longitude: cluster.longitude }); setMapZoom(8); setSelectedDetection(null); return; }
                   setSelectedDetection(detection); setSelectedArea(null); setSearchedPlace(null);
                   setDetailsExpanded(false); setView("information"); setShowFullDetails(false);
                   if (window.matchMedia?.("(max-width: 860px)").matches) requestAnimationFrame(() => detailsRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" }));
