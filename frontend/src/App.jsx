@@ -109,6 +109,7 @@ function App() {
   const [page, setPage] = useState("home");
   const [menuOpen, setMenuOpen] = useState(false);
   const [showDataNotes, setShowDataNotes] = useState(false);
+  const [showAreaList, setShowAreaList] = useState(false);
   const menuRef = useRef(null);
   const detailsRef = useRef(null);
 
@@ -326,7 +327,7 @@ function App() {
       <div className={page === "explore" ? "ew-explore-page" : "ew-page-hidden"}>
         <div className="ew-page-heading">
         <div>
-        <span className="ew-eyebrow"><span className="ew-live-ember" aria-hidden="true" /> WILDFIRE INTELLIGENCE · CANADA</span>
+        <span className="ew-eyebrow"><span className="ew-live-ember" aria-hidden="true" /> CANADA · WILDFIRE EXPLORER</span>
         <h1>
         {view === "dashboard" ? "Explore the map" : "Area assessment"}
         </h1>
@@ -388,9 +389,9 @@ function App() {
         </div>
       )}
 
-      <div className="ew-workspace">
+      <div className="ew-workspace ew-map-first">
         <div className="ew-ember-field" aria-hidden="true"><i /><i /><i /><i /><i /><i /><i /><i /></div>
-        <div className="ew-map-column"><div className="ew-map-title"><span className="ew-map-title-dot" /> MAP EXPLORER <span className="ew-map-title-caption">MONITORED REGIONS</span></div><div className="ew-map-frame">
+        <div className="ew-map-column"><div className="ew-map-title"><span className="ew-map-title-dot" /> MAP <span className="ew-map-title-caption">Explore locations and satellite observations</span></div><div className="ew-map-frame">
           <MapContainer
             center={[45.4, -77.5]}
             zoom={7}
@@ -479,21 +480,22 @@ function App() {
           />{" "}
           Show 50 km risk zones
         </label>
-        <details className="ew-legend-disclosure"><summary>Map legend</summary><RiskLegend /></details>
-        <details className="ew-map-help"><summary>About this map</summary><p aria-label="Risk zone legend">Shaded risk zones represent the 50 km modeled footprint, not predicted fire spread.</p><p aria-label="Detection marker legend">Flame icons mark satellite detections: bright flame = meets confidence threshold; faded flame = low confidence. Detection confidence reflects the observation, not the environmental wildfire risk score.</p><p>Shaded 50 km circles represent modeled area risk, not predicted fire spread. Dashed outlines indicate incomplete inputs. Bright flame icons meet the satellite confidence threshold; faded flame icons do not. Detection confidence is not the same as wildfire risk.</p></details>
+        <details className="ew-legend-disclosure" open><summary>Map legend</summary><RiskLegend /></details>
+        <details className="ew-map-help"><summary>Map information</summary><p aria-label="Risk zone legend">Shaded risk zones represent the 50 km modeled footprint, not predicted fire spread.</p><p aria-label="Detection marker legend">Flame icons mark satellite detections: bright flame = meets confidence threshold; faded flame = low confidence. Detection confidence reflects the observation, not the environmental wildfire risk score.</p><p>Shaded 50 km circles represent modeled area risk, not predicted fire spread. Dashed outlines indicate incomplete inputs. Bright flame icons meet the satellite confidence threshold; faded flame icons do not. Detection confidence is not the same as wildfire risk.</p></details>
         </div>
       </div>
       
         <aside className="ew-side-panel">
           <div className="ew-panel-top">
-          <div className="ew-locations-heading"><h2>Find a place</h2><span className="ew-section-meta">{riskAreas.length} areas</span></div>
-          <label className="ew-search-label" htmlFor="ew-area-search">Search the monitored locations</label>
+          <div className="ew-locations-heading"><h2>Find a place</h2><span className="ew-section-meta">Canada</span></div>
+          <label className="ew-search-label" htmlFor="ew-area-search">Search across Canada</label>
           <input id="ew-area-search" type="search" role="combobox" aria-autocomplete="list" aria-expanded={placeMatches.length > 0} aria-controls="ew-place-suggestions" placeholder="Search anywhere in Canada..." value={search} onChange={(event) => { setSearch(event.target.value); setSearchedPlace(null); if (view !== "dashboard") setView("dashboard"); }} onKeyDown={(event) => { if (event.key === "Enter") { if (placeMatches.length > 0) choosePlace(placeMatches[0]); else if (filteredAreas.length > 0) selectArea(filteredAreas[0]); } }} />
           {placeLoading && <p className="ew-search-count" role="status">Finding places...</p>}
           {placeError && <p className="ew-search-count" role="status">{placeError}</p>}
           {placeMatches.length > 0 && <div id="ew-place-suggestions" className="ew-place-suggestions" role="listbox" aria-label="Canadian place suggestions">{placeMatches.map((place) => <button type="button" role="option" aria-selected={false} key={place.id} onClick={() => choosePlace(place)}>{place.name}{place.admin1 ? `, ${place.admin1}` : ""}<span>↗</span></button>)}</div>}
           {search.trim() && !placeLoading && placeMatches.length === 0 && !placeError && <p className="ew-search-count">Choose a monitored area below, or try another Canadian place name.</p>}
-          <nav className="ew-area-list" aria-label="Monitored areas">
+          <button type="button" className="ew-area-list-toggle" aria-expanded={showAreaList || Boolean(search.trim())} onClick={() => setShowAreaList((open) => !open)}>{showAreaList || search.trim() ? "Hide monitored areas" : `Browse ${riskAreas.length} monitored areas`} <span aria-hidden="true">{showAreaList || search.trim() ? "−" : "+"}</span></button>
+          {(showAreaList || Boolean(search.trim())) && <nav className="ew-area-list" aria-label="Monitored areas">
           {filteredAreas.map((area) => <button type="button" aria-pressed={selectedArea?.id === area.id} className={`ew-area-row ${selectedArea?.id === area.id ? "is-selected" : ""}`} key={area.id} onClick={() => selectArea(area)}>
           <span className="ew-area-name">
           {area.name ?? `Area ${area.id}`}
@@ -503,7 +505,7 @@ function App() {
           </span>
           <span aria-hidden="true">›</span>
           </button>)}{filteredAreas.length === 0 && <p className="ew-empty-search">No matching monitored areas.</p>}
-          </nav>
+          </nav>}
           <details className="ew-search-footnote"><summary>Where does the information come from?</summary><p>Search uses Open-Meteo geocoding for Canadian places. Model risk scores are only available for monitored areas; other locations show nearby detections from the loaded dataset, not a new risk estimate.</p></details>
           </div>
           {searchedPlace && <section className="ew-searched-place" aria-label="Searched place fire information"><h2>{searchedPlace.name}</h2><p>Location: {searchedPlace.latitude.toFixed(3)}, {searchedPlace.longitude.toFixed(3)}</p><p><strong>Risk score: Not available</strong> — this location is outside the currently monitored risk assessments.</p><p><strong>{nearbyDetections.length} nearby satellite detections</strong> within 50 km in the loaded records (up to 200 latest records nationwide).</p><p>These records may be historical and are not a live fire status. No nearby records does not mean no fires.</p><button type="button" onClick={() => { setSearchedPlace(null); setSearch(""); }}>Clear location</button></section>}
