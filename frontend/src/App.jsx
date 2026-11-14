@@ -193,7 +193,7 @@ function App() {
   // Open-Meteo's Canadian geocoding search supports autocomplete beyond the monitored-area list.
   useEffect(() => {
     const query = search.trim();
-    if (query.length < 2) {
+    if (query.length < 2 || (searchedPlace && query === searchedPlace.name)) {
       setPlaceMatches([]);
       setPlaceLoading(false);
       setPlaceError("");
@@ -220,7 +220,7 @@ function App() {
       }
     }, 300);
     return () => { clearTimeout(timer); controller.abort(); };
-  }, [search]);
+  }, [search, searchedPlace]);
 
   function choosePlace(place) {
     const name = [place.name, place.admin1].filter(Boolean).join(", ");
@@ -479,7 +479,7 @@ function App() {
           <div className="ew-panel-top">
           <div className="ew-locations-heading"><h2>Find a place</h2><span className="ew-section-meta">{riskAreas.length} areas</span></div>
           <label className="ew-search-label" htmlFor="ew-area-search">Search the monitored locations</label>
-          <input id="ew-area-search" type="search" role="combobox" aria-autocomplete="list" aria-expanded={placeMatches.length > 0} aria-controls="ew-place-suggestions" placeholder="Search anywhere in Canada..." value={search} onChange={(event) => { setSearch(event.target.value); if (view !== "dashboard") setView("dashboard"); }} onKeyDown={(event) => { if (event.key === "Enter") { if (placeMatches.length > 0) choosePlace(placeMatches[0]); else if (filteredAreas.length > 0) selectArea(filteredAreas[0]); } }} />
+          <input id="ew-area-search" type="search" role="combobox" aria-autocomplete="list" aria-expanded={placeMatches.length > 0} aria-controls="ew-place-suggestions" placeholder="Search anywhere in Canada..." value={search} onChange={(event) => { setSearch(event.target.value); setSearchedPlace(null); if (view !== "dashboard") setView("dashboard"); }} onKeyDown={(event) => { if (event.key === "Enter") { if (placeMatches.length > 0) choosePlace(placeMatches[0]); else if (filteredAreas.length > 0) selectArea(filteredAreas[0]); } }} />
           {placeLoading && <p className="ew-search-count" role="status">Finding places...</p>}
           {placeError && <p className="ew-search-count" role="status">{placeError}</p>}
           {placeMatches.length > 0 && <div id="ew-place-suggestions" className="ew-place-suggestions" role="listbox" aria-label="Canadian place suggestions">{placeMatches.map((place) => <button type="button" role="option" aria-selected={false} key={place.id} onClick={() => choosePlace(place)}>{place.name}{place.admin1 ? `, ${place.admin1}` : ""}<span>↗</span></button>)}</div>}
