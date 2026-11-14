@@ -119,12 +119,10 @@ function App() {
   const [mapControlsOpen, setMapControlsOpen] = useState(true);
   const [legendOpen, setLegendOpen] = useState(true);
   const [mapZoom, setMapZoom] = useState(6);
-  const [mapEntry, setMapEntry] = useState(0);
   useEffect(() => {
     if (page === "explore") {
       setMapControlsOpen(true);
       setLegendOpen(true);
-      setMapEntry((entry) => entry + 1);
     }
   }, [page]);
   const [clusterZoomTarget, setClusterZoomTarget] = useState(null);
@@ -290,7 +288,7 @@ function App() {
   const filteredAreas = sortAreasByRisk(riskAreas)
     .filter((area) => (area.name ?? `Area ${area.id}`).toLowerCase().includes(search.trim().toLowerCase()));
   function navigateTo(nextPage) {
-    if (nextPage === "explore") { setMapControlsOpen(true); setLegendOpen(true); if (page === "explore") setMapEntry((entry) => entry + 1); }
+    if (nextPage === "explore") { setMapControlsOpen(true); setLegendOpen(true); }
     setPage(nextPage);
     setReporting(false);
     setMenuOpen(false);
@@ -416,7 +414,6 @@ function App() {
         <div className="ew-ember-field" aria-hidden="true"><i /><i /><i /><i /><i /><i /><i /><i /></div>
         <div className="ew-map-column"><div className="ew-map-title"><span className="ew-map-title-dot" /> MAP <span className="ew-map-title-caption">Explore locations and satellite observations</span></div><div className="ew-map-frame">
           <MapContainer
-            key={`explore-map-${mapEntry}`}
             center={[54.5, -119]}
             zoom={6}
             maxBounds={[[40, -143], [85, -50]]}
