@@ -32,6 +32,7 @@ import { explainFactors } from "./utils/riskExplanation";
 import { sortAreasByRisk } from "./utils/riskFormat";
 import RiskLegend from "./components/RiskLegend";
 import AshDetective from "./components/AshDetective";
+import { clusterDetections, MapZoomObserver } from "./components/DetectionClusters";
 
 const fireMarkerIcon = (lowConfidence) => divIcon({
   className: "ew-fire-marker-wrap",
@@ -111,6 +112,10 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showDataNotes, setShowDataNotes] = useState(false);
   const [showAreaList, setShowAreaList] = useState(false);
+  const [mapLayer, setMapLayer] = useState("both");
+  const [mapZoom, setMapZoom] = useState(7);
+  const [detailsExpanded, setDetailsExpanded] = useState(false);
+  const [searchExpanded, setSearchExpanded] = useState(true);
   const menuRef = useRef(null);
   const detailsRef = useRef(null);
 
@@ -240,6 +245,7 @@ function App() {
     setPlaceMatches([]);
     setSearchedPlace({ name, latitude: place.latitude, longitude: place.longitude });
     setSelectedDetection(null);
+    setDetailsExpanded(false);
     if (monitored) selectArea(monitored);
     else { setSelectedArea(null); setShowFullDetails(false); setView("dashboard"); }
     setPage("explore");
@@ -278,6 +284,7 @@ function App() {
   function selectArea(area) {
     setPage("explore");
     setSelectedArea(area);
+    setDetailsExpanded(false);
     setSelectedDetection(null);
     setSearchedPlace(null);
     setShowFullDetails(false);
@@ -399,6 +406,7 @@ function App() {
             style={{ height: "100%", width: "100%" }}
           >
             <RefreshMapLayout active={page === "explore"} />
+            <MapZoomObserver onZoom={setMapZoom} />
             <FocusSelected area={searchedPlace ?? selectedArea} />
             <TileLayer
               attribution="&copy; OpenStreetMap contributors"
@@ -409,7 +417,7 @@ function App() {
 
             {searchedPlace && <CircleMarker center={[searchedPlace.latitude, searchedPlace.longitude]} radius={11} pathOptions={{color:"#ffb36c",fillColor:"#ff7843",fillOpacity:0.8,weight:3}}><Tooltip permanent direction="top"><strong>{searchedPlace.name}</strong><br />Selected location</Tooltip></CircleMarker>}
             {/* Draw non-interactive risk zones below clickable area and detection markers. */}
-            {showZones && riskAreas
+            {mapLayer !== "detections" && showZones && riskAreas
               .filter((area) => Number.isFinite(area.latitude) && Number.isFinite(area.longitude))
               .map((area) => (
                 <Circle
@@ -421,7 +429,7 @@ function App() {
                 />
               ))}
 
-            {riskAreas.map((area) => {
+            {mapLayer !== "detections" && riskAreas.map((area) => {
               // Pixel-sized markers stay visible at country-wide zoom levels.
               const { radius, ...pathOptions } = riskAreaStyle(area, selectedArea?.id === area.id);
 
@@ -444,36 +452,40 @@ function App() {
              );
            })}
            
-          {detectionResult?.detections.map((detection) => {
+          {mapLayer !== "risk" && clusterDetections(detectionResult?.detections ?? [], mapZoom).map((cluster) => {
+            const detection = cluster.items[0];
+            const clustered = cluster.items.length > 1;
+            const icon = clustered ? divIcon({
+              className: "ew-fire-cluster-wrap",
+              html: `<span class="ew-fire-cluster" aria-hidden="true">🔥 <b>${cluster.items.length}</b></span>`,
+              iconSize: [48, 36], iconAnchor: [24, 18],
+            }) : fireMarkerIcon(detection.classification === "low_confidence");
             return (
               <Marker
-                key={`detection-${detection.id}`}
-                position={[detection.latitude, detection.longitude]}
-                icon={fireMarkerIcon(detection.classification === "low_confidence")}
-                eventHandlers={{ click: () => { setSelectedDetection(detection); setSelectedArea(null); setSearchedPlace(null); setView("information"); setShowFullDetails(false); if (window.matchMedia?.("(max-width: 860px)").matches) requestAnimationFrame(() => detailsRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" })); } }}
+                key={`detection-${cluster.key}`}
+                position={[cluster.latitude, cluster.longitude]}
+                icon={icon}
+                eventHandlers={{ click: () => {
+                  if (clustered) { setMapZoom(7); setSelectedDetection(null); return; }
+                  setSelectedDetection(detection); setSelectedArea(null); setSearchedPlace(null);
+                  setDetailsExpanded(false); setView("information"); setShowFullDetails(false);
+                  if (window.matchMedia?.("(max-width: 860px)").matches) requestAnimationFrame(() => detailsRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" }));
+                } }}
               >
                 <Popup>
-                  <strong>{classificationLabel(detection)}</strong>
-                  <p>
-                    Location: {formatCoordinates(detection.latitude, detection.longitude)}
-                    <br />
-                    Detected: {formatDetectionTime(detection.timestamp)}
-                    <br />
-                    Confidence: {formatConfidence(detection.confidence)}
-                  </p>
-
-                  {!detection.meets_threshold && (
-                    <p>
-                      Below the {detectionResult.threshold}% confidence
-                      threshold. Treat with caution.
-                    </p>
-                  )}
+                  {clustered ? <><strong>{cluster.items.length} satellite observations</strong><p>Zoom in to see individual hotspots. These may be historical.</p></> : <>
+                    <strong>{classificationLabel(detection)}</strong>
+                    <p>Location: {formatCoordinates(detection.latitude, detection.longitude)}
+                    <br />Detected: {formatDetectionTime(detection.timestamp)}
+                    <br />Confidence: {formatConfidence(detection.confidence)}</p>
+                    {!detection.meets_threshold && <p>Below the {detectionResult.threshold}% confidence threshold. Treat with caution.</p>}
+                  </>}
                 </Popup>
               </Marker>
             );
           })}
         </MapContainer></div>
-        <div className="ew-map-controls"><label className="ew-zone-toggle">
+        <div className="ew-map-controls"><div className="ew-layer-switcher" role="group" aria-label="Map layers">{[["both", "Both"], ["risk", "Risk"], ["detections", "Detections"]].map(([value, label]) => <button type="button" key={value} aria-pressed={mapLayer === value} onClick={() => setMapLayer(value)}>{label}</button>)}</div><label className="ew-zone-toggle">
           <input
             type="checkbox"
             checked={showZones}
@@ -486,8 +498,8 @@ function App() {
         </div>
       </div>
       
-        <aside className="ew-side-panel">
-          <div className="ew-panel-top">
+        <aside className={`ew-side-panel ${selectedArea || selectedDetection || searchedPlace ? "ew-has-selection" : ""} ${detailsExpanded ? "ew-sheet-expanded" : ""}`}>
+          <div className="ew-panel-top"><button type="button" className="ew-search-collapse" aria-expanded={searchExpanded} onClick={() => setSearchExpanded((v) => !v)}>{searchExpanded ? "− Hide search" : "⌕ Search places"}</button><div className={searchExpanded ? "ew-search-body" : "ew-search-body ew-search-body-hidden"}>
           <div className="ew-locations-heading"><h2>Find a place</h2><span className="ew-section-meta">Canada</span></div>
           <label className="ew-search-label" htmlFor="ew-area-search">Search across Canada</label>
           <input id="ew-area-search" type="search" role="combobox" aria-autocomplete="list" aria-expanded={placeMatches.length > 0} aria-controls="ew-place-suggestions" placeholder="Search anywhere in Canada..." value={search} onChange={(event) => { setSearch(event.target.value); setSearchedPlace(null); if (view !== "dashboard") setView("dashboard"); }} onKeyDown={(event) => { if (event.key === "Enter") { if (placeMatches.length > 0) choosePlace(placeMatches[0]); else if (filteredAreas.length > 0) selectArea(filteredAreas[0]); } }} />
@@ -508,9 +520,9 @@ function App() {
           </button>)}{filteredAreas.length === 0 && <p className="ew-empty-search">No matching monitored areas.</p>}
           </nav>}
           <details className="ew-search-footnote"><summary>Where does the information come from?</summary><p>Search uses Open-Meteo geocoding for Canadian places. Model risk scores are only available for monitored areas; other locations show nearby detections from the loaded dataset, not a new risk estimate.</p></details>
-          </div>
+          </div></div>
           {searchedPlace && <section className="ew-searched-place" aria-label="Searched place fire information"><h2>{searchedPlace.name}</h2><p>Location: {searchedPlace.latitude.toFixed(3)}, {searchedPlace.longitude.toFixed(3)}</p><p><strong>Risk score: Not available</strong> — this location is outside the currently monitored risk assessments.</p><p><strong>{nearbyDetections.length} nearby satellite detections</strong> within 50 km in the loaded records (up to 200 latest records nationwide).</p><p>These records may be historical and are not a live fire status. No nearby records does not mean no fires.</p><button type="button" onClick={() => { setSearchedPlace(null); setSearch(""); }}>Clear location</button></section>}
-          <div ref={detailsRef} tabIndex={-1} className="ew-detail-panel" aria-label="Area details">
+          <div ref={detailsRef} tabIndex={-1} className="ew-detail-panel" aria-label="Area details">{(selectedArea || selectedDetection || searchedPlace) && <button type="button" className="ew-sheet-handle" aria-expanded={detailsExpanded} onClick={() => setDetailsExpanded((v) => !v)}>{detailsExpanded ? "Show less −" : "Expand details +"}</button>}
           {selectedDetection ? (
             <section className="ew-detection-details" aria-label="Satellite detection details">
               <div className="ew-detail-heading"><div><span className="ew-overline">SATELLITE FIRE OBSERVATION</span><h2>🔥 {classificationLabel(selectedDetection)}</h2></div><button type="button" className="ew-back-button" onClick={() => { setSelectedDetection(null); setView("dashboard"); }}>← Back</button></div>
