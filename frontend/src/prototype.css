@@ -1172,3 +1172,11 @@
 .ew-searched-place p { font-size:12px; line-height:1.55; color:#e5cfc0; }
 .ew-searched-place strong { color:#fff1df; }
 .ew-searched-place button { background:#513225; color:#ffd4ba; border:1px solid #9b5a3d; border-radius:8px; padding:8px 11px; cursor:pointer; }
+
+
+/* Satellite observations use flames; environmental risk keeps round markers. */
+.ew-fire-marker-wrap { background:none; border:0; }
+.ew-fire-marker { display:flex; align-items:center; justify-content:center; width:26px; height:30px; font-size:23px; line-height:1; filter:drop-shadow(0 2px 3px #000b); user-select:none; }
+.ew-fire-marker-low { opacity:.38; filter:grayscale(1) drop-shadow(0 2px 2px #0008); }
+.ew-legend-flame { display:inline-flex; align-items:center; justify-content:center; min-width:19px; font-size:17px; line-height:1; }
+.ew-legend-flame-low { opacity:.4; filter:grayscale(1); }
