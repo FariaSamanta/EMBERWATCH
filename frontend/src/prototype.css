@@ -1180,3 +1180,8 @@
 .ew-fire-marker-low { opacity:.38; filter:grayscale(1) drop-shadow(0 2px 2px #0008); }
 .ew-legend-flame { display:inline-flex; align-items:center; justify-content:center; min-width:19px; font-size:17px; line-height:1; }
 .ew-legend-flame-low { opacity:.4; filter:grayscale(1); }
+
+.ew-detection-details { padding:14px 6px; color:#f1e0d5; }
+.ew-detection-details p { font-size:14px; line-height:1.55; }
+.ew-detection-details strong { color:#ffbc91; }
+.ew-fire-marker-wrap { cursor:pointer; }
