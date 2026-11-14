@@ -9,7 +9,6 @@ import { describeLoadError } from "./utils/loadError";
 import DataFreshness from "./components/DataFreshness";
 import {
   classificationLabel,
-  detectionStyle,
   detectionSummary,
   formatConfidence,
   formatCoordinates,
@@ -25,12 +24,21 @@ import {
   riskState,
   riskStatusText,
 } from "./utils/riskFormat";
-import { MapContainer, TileLayer, CircleMarker, Circle, Popup, Tooltip, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, CircleMarker, Circle, Marker, Popup, Tooltip, useMap } from "react-leaflet";
+import { divIcon } from "leaflet";
 import { RISK_ZONE_RADIUS_M, riskZoneStyle } from "./utils/riskZone";
 import "leaflet/dist/leaflet.css";
 import { explainFactors } from "./utils/riskExplanation";
 import { sortAreasByRisk } from "./utils/riskFormat";
 import RiskLegend from "./components/RiskLegend";
+
+const fireMarkerIcon = (lowConfidence) => divIcon({
+  className: "ew-fire-marker-wrap",
+  html: `<span class="ew-fire-marker ${lowConfidence ? "ew-fire-marker-low" : "ew-fire-marker-likely"}" aria-hidden="true">🔥</span>`,
+  iconSize: [26, 30],
+  iconAnchor: [13, 25],
+  popupAnchor: [0, -23],
+});
 
 const factorUnits = {
   temperature_c: "°C",
@@ -432,14 +440,11 @@ function App() {
            })}
            
           {detectionResult?.detections.map((detection) => {
-            const { radius, ...pathOptions } = detectionStyle(detection);
-
             return (
-              <CircleMarker
+              <Marker
                 key={`detection-${detection.id}`}
-                center={[detection.latitude, detection.longitude]}
-                radius={radius}
-                pathOptions={pathOptions}
+                position={[detection.latitude, detection.longitude]}
+                icon={fireMarkerIcon(detection.classification === "low_confidence")}
               >
                 <Popup>
                   <strong>{classificationLabel(detection)}</strong>
@@ -458,7 +463,7 @@ function App() {
                     </p>
                   )}
                 </Popup>
-              </CircleMarker>
+              </Marker>
             );
           })}
         </MapContainer></div>
@@ -471,7 +476,7 @@ function App() {
           Show 50 km risk zones
         </label>
         <details className="ew-legend-disclosure"><summary>Map legend</summary><RiskLegend /></details>
-        <details className="ew-map-help"><summary>About this map</summary><p aria-label="Risk zone legend">Shaded risk zones represent the 50 km modeled footprint, not predicted fire spread.</p><p aria-label="Detection marker legend">Detection markers: solid red = meets confidence threshold; dashed grey = low confidence. Detection confidence reflects the observation, not the environmental wildfire risk score.</p><p>Shaded 50 km circles represent modeled area risk, not predicted fire spread. Dashed outlines indicate incomplete inputs. Red detection markers meet the satellite confidence threshold; grey markers do not. Detection confidence is not the same as wildfire risk.</p></details>
+        <details className="ew-map-help"><summary>About this map</summary><p aria-label="Risk zone legend">Shaded risk zones represent the 50 km modeled footprint, not predicted fire spread.</p><p aria-label="Detection marker legend">Flame icons mark satellite detections: bright flame = meets confidence threshold; faded flame = low confidence. Detection confidence reflects the observation, not the environmental wildfire risk score.</p><p>Shaded 50 km circles represent modeled area risk, not predicted fire spread. Dashed outlines indicate incomplete inputs. Bright flame icons meet the satellite confidence threshold; faded flame icons do not. Detection confidence is not the same as wildfire risk.</p></details>
         </div>
       </div>
       
