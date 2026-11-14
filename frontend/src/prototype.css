@@ -1064,3 +1064,40 @@
  .ew-learn { padding:30px 9px; }
 }
 @media(prefers-reduced-motion:reduce) { .ew-home-orbit span { animation:none; } .ew-home-actions button:hover,.ew-primary-action:hover { transform:none; } }
+
+
+/* Editorial wildfire typography: Barlow Condensed headlines, Source Sans 3 copy,
+   IBM Plex Mono data labels. Distinctive, legible and not dependent on emoji styling. */
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:wght@400;500;600;700&display=swap');
+.ew-app { font-family:"Source Sans 3","Segoe UI",sans-serif; font-size:15px; }
+.ew-app button,.ew-app input,.ew-app summary { font-family:inherit; }
+.ew-brand,.ew-page-heading h1,.ew-home-hero h1,.ew-home-preview h2,.ew-learn h1,.ew-learn h2,.ew-locations-heading h2,.ew-detail-panel h2 {
+  font-family:"Barlow Condensed","Arial Narrow",Impact,sans-serif;
+  font-weight:700; letter-spacing:.005em;
+}
+.ew-brand { font-size:25px; letter-spacing:.055em; }
+.ew-page-heading h1 { font-size:clamp(36px,4vw,58px); line-height:1; }
+.ew-home-hero h1 { font-size:clamp(64px,8vw,116px); line-height:.94; letter-spacing:-.01em; text-transform:uppercase; }
+.ew-home-hero h1 em { font-style:normal; }
+.ew-home-preview h2 { font-size:clamp(31px,3.2vw,46px); }
+.ew-learn h1 { font-size:clamp(54px,6vw,86px); line-height:1; }
+.ew-learn-grid h2 { font-size:32px; }
+.ew-locations-heading h2,.ew-detail-panel h2 { font-size:26px; }
+.ew-eyebrow,.ew-overline,.ew-map-title,.ew-map-title-caption,.ew-home-preview .ew-overline,.ew-learn-grid article>span,.ew-section-meta {
+  font-family:"IBM Plex Mono",Consolas,monospace; font-weight:600; letter-spacing:.095em;
+}
+.ew-home-hero>p:not(.ew-home-caution) { font-size:18px; }
+.ew-home-caution { color:#d3b9aa; }
+.ew-home-preview { background:linear-gradient(145deg,#38221eeb,#161a20f2); }
+.ew-feature-tiles strong { font-family:"IBM Plex Mono",Consolas,monospace; font-size:12px; }
+.ew-feature-tiles span:nth-child(2) { font-size:14px; }
+.ew-top-nav button { font-weight:700; letter-spacing:.02em; }
+.ew-app .freshness-line.is-history { color:#ffe0cb; }
+.ew-app .ew-data-summary { color:#ffe2cd; }
+.ew-map-title { font-size:11px; }
+.ew-app a:focus-visible,.ew-app button:focus-visible { outline:2px solid #ffab72; outline-offset:3px; }
+@media(max-width:680px) {
+ .ew-home-hero h1 { font-size:clamp(53px,13vw,75px); }
+ .ew-page-heading h1 { font-size:36px; }
+ .ew-brand { font-size:22px; }
+}
