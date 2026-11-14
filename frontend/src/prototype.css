@@ -705,3 +705,24 @@
   opacity:.45;
   cursor:not-allowed
 }
+
+/* PR #90: touch-friendly controls, mobile details, and risk score visualization. */
+.ew-score-bar { height: 8px; border-radius: 999px; background: #edf1ec; overflow: hidden; margin: 6px 0 14px; }
+.ew-score-bar span { display: block; height: 100%; border-radius: inherit; }
+.ew-detail-panel { scroll-margin-top: 14px; }
+.ew-detail-panel:focus { outline: none; }
+.ew-area-row { min-height: 44px; }
+.ew-area-row:focus-visible { outline: 3px solid #2563eb; outline-offset: 2px; }
+.ew-app .leaflet-touch .leaflet-bar a { width: 44px; height: 44px; line-height: 44px; font-size: 22px; }
+.ew-app .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 12px; color: #607368; }
+.ew-app .legend-group { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; }
+.ew-app .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.ew-app .legend-title { font-weight: 700; }
+.ew-app .legend-dot { flex: none; display: inline-block; box-sizing: border-box; border-radius: 50%; width: 14px; height: 14px; }
+@media (max-width: 860px) {
+  .ew-view-information .ew-map-column, .ew-view-risk .ew-map-column { display: block; }
+  .ew-view-information .ew-panel-top, .ew-view-risk .ew-panel-top { display: block; }
+  .ew-map-frame { height: min(58vh, 380px); min-height: 290px; }
+  .ew-view-information .ew-map-frame, .ew-view-risk .ew-map-frame { height: min(58vh, 380px); }
+  .ew-side-panel { overflow: visible; }
+}

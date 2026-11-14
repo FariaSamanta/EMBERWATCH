@@ -39,7 +39,7 @@ vi.mock("react-leaflet", async () => {
   };
 });
 
-const mockMap = vi.hoisted(() => ({ fitBounds: vi.fn() }));
+const mockMap = vi.hoisted(() => ({ fitBounds: vi.fn(), panTo: vi.fn(), getBounds: () => ({ contains: () => true }) }));
 
 vi.mock("./services/detectionApi", () => ({
   fetchDetections: vi.fn().mockRejectedValue(new Error("not under test")),

@@ -28,6 +28,8 @@ import {
 import { MapContainer, TileLayer, CircleMarker, Popup, Tooltip, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { explainFactors } from "./utils/riskExplanation";
+import { sortAreasByRisk } from "./utils/riskFormat";
+import RiskLegend from "./components/RiskLegend";
 
 const factorUnits = {
   temperature_c: "°C",
@@ -53,27 +55,15 @@ function FitToAreas({ areas }) {
   return null;
 }
 
-// #28: explains the three ways a risk area can be drawn.
-function RiskLegend() {
-  const swatch = (style) => ({
-    display: "inline-block",
-    width: 14,
-    height: 14,
-    borderRadius: "50%",
-    marginRight: 6,
-    verticalAlign: "middle",
-    ...style,
-  });
-
-  return (
-    <div aria-label="Map legend" style={{ fontSize: 14, marginTop: 8, display: "flex", gap: 16, flexWrap: "wrap" }}>
-      <span><span style={swatch({ background: "#dc2626" })} />High</span>
-      <span><span style={swatch({ background: "#f97316" })} />Moderate</span>
-      <span><span style={swatch({ background: "#16a34a" })} />Low</span>
-      <span><span style={swatch({ border: "2px dashed #374151" })} />Dashed outline: incomplete (some inputs missing)</span>
-      <span><span style={swatch({ background: "#e5e7eb", border: "2px dashed #6b7280" })} />Grey: risk unavailable (not enough data)</span>
-    </div>
-  );
+// Pan when an area selected from the list is outside the visible map.
+function FocusSelected({ area }) {
+  const map = useMap();
+  useEffect(() => {
+    if (!area || !map.getBounds) return;
+    const point = [area.latitude, area.longitude];
+    if (!map.getBounds().contains(point)) map.panTo(point);
+  }, [map, area]);
+  return null;
 }
 
 function App() {
@@ -87,6 +77,7 @@ function App() {
   const [view, setView] = useState("dashboard");
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
+  const detailsRef = useRef(null);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -189,14 +180,19 @@ function App() {
   }
 
   const factors = selectedArea?.environmental_factors ?? {};
-  const filteredAreas = riskAreas
-    .filter((area) => (area.name ?? `Area ${area.id}`).toLowerCase().includes(search.trim().toLowerCase()))
-    .sort((a, b) => {
-      const aScore = validRiskScore(a) ? a.risk_score : -1;
-      const bScore = validRiskScore(b) ? b.risk_score : -1;
-      return bScore - aScore || (a.name ?? "").localeCompare(b.name ?? "");
-    });
-  function selectArea(area) { setSelectedArea(area); setShowFullDetails(false); setView("information"); }
+  const filteredAreas = sortAreasByRisk(riskAreas)
+    .filter((area) => (area.name ?? `Area ${area.id}`).toLowerCase().includes(search.trim().toLowerCase()));
+  function selectArea(area) {
+    setSelectedArea(area);
+    setShowFullDetails(false);
+    setView("information");
+    if (window.matchMedia?.("(max-width: 860px)").matches) {
+      requestAnimationFrame(() => {
+        detailsRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+        detailsRef.current?.focus?.({ preventScroll: true });
+      });
+    }
+  }
 
   return (
     <div className={`ew-app ew-view-${view}`}>
@@ -302,6 +298,7 @@ function App() {
             zoom={7}
             style={{ height: "100%", width: "100%" }}
           >
+            <FocusSelected area={selectedArea} />
             <TileLayer
               attribution="&copy; OpenStreetMap contributors"
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -379,8 +376,8 @@ function App() {
           <h2>Active Detections & Monitored Areas</h2>
           <label className="ew-search-label" htmlFor="ew-area-search">Search monitored areas</label>
           <input id="ew-area-search" type="search" placeholder="Search location..." value={search} onChange={(event) => setSearch(event.target.value)} />
-          <div className="ew-area-list" aria-label="Monitored areas">
-          {filteredAreas.map((area) => <button type="button" className={`ew-area-row ${selectedArea?.id === area.id ? "is-selected" : ""}`} key={area.id} onClick={() => selectArea(area)}>
+          <nav className="ew-area-list" aria-label="Monitored areas">
+          {filteredAreas.map((area) => <button type="button" aria-pressed={selectedArea?.id === area.id} className={`ew-area-row ${selectedArea?.id === area.id ? "is-selected" : ""}`} key={area.id} onClick={() => selectArea(area)}>
           <span className="ew-area-name">
           {area.name ?? `Area ${area.id}`}
           </span>
@@ -389,9 +386,9 @@ function App() {
           </span>
           <span aria-hidden="true">›</span>
           </button>)}{filteredAreas.length === 0 && <p className="ew-empty-search">No matching monitored areas.</p>}
+          </nav>
           </div>
-          </div>
-          <div className="ew-detail-panel">
+          <div ref={detailsRef} tabIndex={-1} className="ew-detail-panel" aria-label="Area details">
           <span className="ew-overline">
           {view === "risk" ? "RISK DETAILS" : "FIRE INFORMATION"}
           </span>
@@ -432,9 +429,13 @@ function App() {
                 </strong>
                 </div>
                 </div>
+                {validRiskScore(selectedArea) && (
+                  <div className="ew-score-bar" aria-hidden="true"><span style={{ width: `${selectedArea.risk_score}%`, background: riskColor(selectedArea) }} /></div>
+                )}
                 <hr />
 
               <h3>Environmental Factors</h3>
+              {selectedArea.observed_at && <p>Weather observed {formatDetectionTime(selectedArea.observed_at)}</p>}
               <p>These factors contribute to a weighted risk estimate, not a confirmed wildfire detection. Higher factor scores mean higher modeled risk; missing factors are excluded and the remaining weights are normalized.</p>
 
               {Object.entries(factorLabels).map(([key, label]) => {
