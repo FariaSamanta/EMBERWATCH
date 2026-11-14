@@ -1,6 +1,8 @@
 
 # Wildfire Early Detection and Risk Assessment Platform
 
+> **Sprint 4 implementation note:** Some sections below describe the initial prototype and retain historical mock-data examples. For the current database-backed API contracts, feature status, Supabase setup and verification checklist, see [Sprint 4 integration contracts](docs/sprint4-integration-contracts.md). Do not treat the historical mock response below as the current live API contract.
+
 🌐 **Live Demo:** https://ember-watch-xi.vercel.app/
 
 **Team Ash Detectives | ECE444 – Software Engineering | University of Toronto**
