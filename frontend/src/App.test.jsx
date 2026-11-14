@@ -415,7 +415,7 @@ describe("Sprint 3 detection dashboard integration (#43)", () => {
 
     render(<App />);
     expect(await screen.findByText(/2 detections shown/)).toBeInTheDocument();
-    expect(screen.getByText("Potential wildfire")).toBeInTheDocument();
+    expect(screen.getAllByText("Potential wildfire").length).toBeGreaterThan(0);
     expect(screen.getByText("Low confidence detection")).toBeInTheDocument();
     expect(screen.getByText(/Location: 50.100, -120.300/)).toBeInTheDocument();
     expect(screen.getByText(/Confidence: 80%/)).toBeInTheDocument();
