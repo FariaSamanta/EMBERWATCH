@@ -32,6 +32,7 @@ vi.mock("react-leaflet", async () => {
         "data-dashed": pathOptions?.dashArray ? "yes" : "no",
       }),
 
+    Marker: ({ position, eventHandlers, children }) => React.createElement("button", { type: "button", "aria-label": `Fire at ${position.join(", ")}`, onClick: eventHandlers?.click }, children),
     CircleMarker: ({ center, eventHandlers, pathOptions, children }) =>
       React.createElement(
         "button",
@@ -91,6 +92,7 @@ describe("Wildfire risk map", () => {
     });
 
     render(<App />);
+    (await screen.findByRole("button", { name: "Explore map" })).click();
 
     expect(await screen.findByTestId("map")).toBeInTheDocument();
 
@@ -100,7 +102,7 @@ describe("Wildfire risk map", () => {
       }),
     ).toBeInTheDocument();
 
-    expect(screen.getByText(/Click a colored circle/i)).toBeInTheDocument();
+    expect(screen.getByText(/Tap a location to see its risk score/i)).toBeInTheDocument();
   });
 
   it("shows environmental factors when a risk area is clicked", async () => {
@@ -112,6 +114,7 @@ describe("Wildfire risk map", () => {
     });
 
     render(<App />);
+    (await screen.findByRole("button", { name: "Explore map" })).click();
 
     await user.click(
       await screen.findByRole("button", {
@@ -165,6 +168,7 @@ describe("Wildfire risk map", () => {
     });
 
     render(<App />);
+    (await screen.findByRole("button", { name: "Explore map" })).click();
 
     await user.click(
       await screen.findByRole("button", {
@@ -175,7 +179,7 @@ describe("Wildfire risk map", () => {
     await user.click(screen.getByRole("button", { name: "Clear selection" }));
 
     expect(
-      screen.getByText(/Click a colored circle/i),
+      screen.getByText(/Tap a location to see its risk score/i),
     ).toBeInTheDocument();
 
     expect(
@@ -187,6 +191,7 @@ describe("Wildfire risk map", () => {
     fetchRiskAreas.mockRejectedValue(new Error("Server unavailable"));
 
     render(<App />);
+    (await screen.findByRole("button", { name: "Explore map" })).click();
 
     expect(
       await screen.findByText(/Risk data unavailable:/),
@@ -207,6 +212,7 @@ describe("Wildfire risk map", () => {
     fetchRiskAreas.mockResolvedValue({ source: "supabase", data: [mockArea, complete, unscored] });
 
     render(<App />);
+    (await screen.findByRole("button", { name: "Explore map" })).click();
 
     const incompleteMarker = await screen.findByRole("button", { name: "Select area at 43.6532, -79.3832" });
     const completeMarker = screen.getByRole("button", { name: "Select area at 49.888, -119.496" });
@@ -231,7 +237,9 @@ describe("Wildfire risk map", () => {
     fetchRiskAreas.mockResolvedValue({ source: "supabase", data: [mockArea, scored, unscored] });
 
     render(<App />);
+    (await screen.findByRole("button", { name: "Explore map" })).click();
 
+    await userEvent.setup().click(screen.getByRole("checkbox", { name: /show 50 km risk zones/i }));
     const zones = await screen.findAllByTestId("risk-zone");
     expect(zones).toHaveLength(3);
     const zoneAt = (center) => zones.find((zone) => zone.dataset.center === center);
@@ -248,7 +256,8 @@ describe("Wildfire risk map", () => {
     fetchRiskAreas.mockResolvedValue({ source: "supabase", data: [mockArea] });
 
     render(<App />);
-    expect(await screen.findAllByTestId("risk-zone")).toHaveLength(1);
+    (await screen.findByRole("button", { name: "Explore map" })).click();
+    expect(screen.queryAllByTestId("risk-zone")).toHaveLength(0);
     await user.click(screen.getByRole("checkbox", { name: /show 50 km risk zones/i }));
     expect(screen.queryAllByTestId("risk-zone")).toHaveLength(0);
     expect(screen.getByRole("button", { name: "Select area at 43.6532, -79.3832" })).toBeInTheDocument();
@@ -259,6 +268,7 @@ describe("Wildfire risk map", () => {
     const inconsistent = { ...mockArea, risk_score: null, risk_level: "HIGH" };
     fetchRiskAreas.mockResolvedValue({ source: "supabase", data: [inconsistent] });
     render(<App />);
+    (await screen.findByRole("button", { name: "Explore map" })).click();
     const marker = await screen.findByRole("button", { name: "Select area at 43.6532, -79.3832" });
     expect(marker).toHaveAttribute("data-color", "#6b7280");
     await user.click(marker);
@@ -274,6 +284,7 @@ describe("Wildfire risk map", () => {
     fetchRiskAreas.mockResolvedValue({ source: "supabase", data: [unscored] });
 
     render(<App />);
+    (await screen.findByRole("button", { name: "Explore map" })).click();
 
     await user.click(await screen.findByRole("button", { name: "Select area at 43.6532, -79.3832" }));
 
@@ -298,6 +309,7 @@ describe("Wildfire risk map", () => {
     });
 
     render(<App />);
+    (await screen.findByRole("button", { name: "Explore map" })).click();
 
     expect(await screen.findByText(/Nearby fire history is temporarily unavailable/)).toBeInTheDocument();
     expect(screen.getByText(/Risk could not be calculated for 1 area/)).toBeInTheDocument();
@@ -309,6 +321,7 @@ describe("Wildfire risk map", () => {
     fetchRiskAreas.mockResolvedValue({ source: "supabase", data: [mockArea] });
 
     render(<App />);
+    (await screen.findByRole("button", { name: "Explore map" })).click();
 
     await screen.findByRole("button", { name: "Select area at 43.6532, -79.3832" });
     expect(screen.queryByText(/Notice:/)).not.toBeInTheDocument();
@@ -318,6 +331,7 @@ describe("Wildfire risk map", () => {
     fetchRiskAreas.mockRejectedValue(new RequestTimeoutError(15000));
 
     render(<App />);
+    (await screen.findByRole("button", { name: "Explore map" })).click();
 
     expect(await screen.findByText(/Risk data unavailable:/))
       .toHaveTextContent("The server took too long to respond.");
@@ -327,6 +341,7 @@ describe("Wildfire risk map", () => {
     fetchRiskAreas.mockRejectedValue(new TypeError("Failed to fetch"));
 
     render(<App />);
+    (await screen.findByRole("button", { name: "Explore map" })).click();
 
     expect(await screen.findByText(/Risk data unavailable:/))
       .toHaveTextContent(/Can't reach the server/);
@@ -339,6 +354,7 @@ describe("Wildfire risk map", () => {
       .mockResolvedValueOnce({ source: "supabase", data: [mockArea] });
 
     render(<App />);
+    (await screen.findByRole("button", { name: "Explore map" })).click();
 
     expect(await screen.findByText(/Risk data unavailable:/))
       .toHaveTextContent("The data service is temporarily unavailable.");
@@ -355,6 +371,7 @@ describe("Wildfire risk map", () => {
     fetchRiskAreas.mockRejectedValue(new Error("Failed to fetch risk data: 503"));
 
     render(<App />);
+    (await screen.findByRole("button", { name: "Explore map" })).click();
 
     await user.click(await screen.findByRole("button", { name: "Try loading risk data again" }));
 
@@ -375,6 +392,7 @@ describe("Wildfire risk map", () => {
       });
 
     render(<App />);
+    (await screen.findByRole("button", { name: "Explore map" })).click();
 
     expect(await screen.findByText(/Detections unavailable:/))
       .toHaveTextContent("The data service is temporarily unavailable.");
@@ -398,6 +416,7 @@ describe("Wildfire risk map", () => {
     fetchRiskAreas.mockResolvedValue({ source: "supabase", data: [failed, ok] });
 
     render(<App />);
+    (await screen.findByRole("button", { name: "Explore map" })).click();
 
     // The failed area is grey and the healthy one still shows its risk.
     const failedMarker = await screen.findByRole("button", { name: "Select area at 43.6532, -79.3832" });
@@ -420,6 +439,7 @@ describe("Sprint 3 detection dashboard integration (#43)", () => {
     fetchDetections.mockReturnValue(new Promise(() => {}));
 
     render(<App />);
+    (await screen.findByRole("button", { name: "Explore map" })).click();
     expect(screen.getByText("Loading wildfire detections...")).toBeInTheDocument();
     expect(screen.getByLabelText("Detection marker legend"))
       .toHaveTextContent("not the environmental wildfire risk score");
@@ -434,6 +454,7 @@ describe("Sprint 3 detection dashboard integration (#43)", () => {
     });
 
     render(<App />);
+    (await screen.findByRole("button", { name: "Explore map" })).click();
     expect(await screen.findByText(/No wildfire detections available for the latest observations/))
       .toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Select area at 43.6532, -79.3832" }))
@@ -455,6 +476,7 @@ describe("Sprint 3 detection dashboard integration (#43)", () => {
     });
 
     render(<App />);
+    (await screen.findByRole("button", { name: "Explore map" })).click();
     expect(await screen.findByText(/2 detections shown/)).toBeInTheDocument();
     expect(screen.getAllByText("Potential wildfire").length).toBeGreaterThan(0);
     expect(screen.getByText("Low confidence detection")).toBeInTheDocument();
