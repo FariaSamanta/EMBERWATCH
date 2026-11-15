@@ -1,3 +1,5 @@
+import { formatDetectionTime } from "./detectionFormat";
+
 // #28: wording and styling helpers for risk areas, so an incomplete or
 // unscored assessment never looks the same as a complete one.
 // Kept out of App.jsx so they can be unit tested without a browser.
@@ -89,4 +91,54 @@ export function sortAreasByRisk(areas) {
     if (sb !== sa) return sb - sa;
     return String(a.name ?? "").localeCompare(String(b.name ?? ""));
   });
+}
+
+// #49: a risk area can only be drawn if it has an id and a real location.
+// Anything else is left out and counted, instead of crashing the whole map.
+export function isDisplayableRiskArea(area) {
+  return (
+    area !== null &&
+    typeof area === "object" &&
+    !Array.isArray(area) &&
+    area.id !== null &&
+    area.id !== undefined &&
+    Number.isFinite(area.latitude) &&
+    Number.isFinite(area.longitude) &&
+    Math.abs(area.latitude) <= 90 &&
+    Math.abs(area.longitude) <= 180
+  );
+}
+
+// Second line of defence after the backend's own checks (same idea as
+// sanitizeDetections). Adds an "area_unreadable" warning when records were dropped.
+export function sanitizeRiskAreas(result) {
+  const data = result.data.filter(isDisplayableRiskArea);
+  const dropped = result.data.length - data.length;
+  if (dropped === 0) return result;
+
+  const warnings = Array.isArray(result.warnings) ? result.warnings : [];
+  return {
+    ...result,
+    data,
+    warnings: [
+      ...warnings,
+      {
+        code: "area_unreadable",
+        count: dropped,
+        message: `${dropped} area(s) were left out because their data could not be read.`,
+      },
+    ],
+  };
+}
+
+// #49: when the area's weather was observed, or an explicit "unavailable" if
+// there is no readable time (never a blank line, and never the 1970 epoch that
+// new Date(null) would give).
+export function weatherObservedText(area) {
+  const value = area?.observed_at;
+  const readable =
+    value !== null && value !== undefined && value !== "" && !Number.isNaN(new Date(value).getTime());
+  return readable
+    ? `Weather observed ${formatDetectionTime(value)}`
+    : "Weather observation time unavailable";
 }

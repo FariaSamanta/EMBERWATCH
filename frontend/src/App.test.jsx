@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
 import { fetchRiskAreas } from "./services/riskApi";
@@ -14,14 +14,18 @@ vi.mock("react-leaflet", async () => {
   const React = await import("react");
 
   return {
-    MapContainer: ({ children, center, zoom }) =>
-      React.createElement("div", { "data-testid": "map", "data-center": center.join(","), "data-zoom": String(zoom) }, children),
+    MapContainer: ({ children, center, zoom, maxBounds }) => {
+      // Only the dashboard map (the one with maxBounds) fails; the Report a fire map keeps working.
+      if (mapFailure.explode && maxBounds) throw new Error("map exploded");
+      return React.createElement("div", { "data-testid": "map", "data-center": center.join(","), "data-zoom": String(zoom) }, children);
+    },
 
     TileLayer: () => null,
     Popup: ({ children }) => React.createElement("div", { "data-testid": "leaflet-popup" }, children),
     Tooltip: ({ children }) =>
       React.createElement("span", { role: "tooltip" }, children),
     useMap: () => mockMap,
+    useMapEvents: () => mockMap,
 
     Circle: ({ center, radius, pathOptions }) =>
       React.createElement("div", {
@@ -49,6 +53,7 @@ vi.mock("react-leaflet", async () => {
   };
 });
 
+const mapFailure = vi.hoisted(() => ({ explode: false }));
 const mockMap = vi.hoisted(() => ({ fitBounds: vi.fn(), panTo: vi.fn(), getBounds: () => ({ contains: () => true }) }));
 
 vi.mock("./services/detectionApi", () => ({
@@ -81,6 +86,7 @@ const mockArea = {
 
 afterEach(() => {
   cleanup();
+  mapFailure.explode = false;
   vi.clearAllMocks();
 });
 
@@ -733,5 +739,124 @@ describe("Sprint 3 detection dashboard integration (#43)", () => {
     expect(screen.getByText(/Below the 20% confidence/)).toBeInTheDocument();
     expect(screen.getByLabelText("Detection marker legend"))
       .toHaveTextContent("Detection confidence reflects the observation");
+  });
+});
+
+describe("Sprint 4 failure isolation (#49)", () => {
+  const emptyDetections = {
+    threshold: 20,
+    detections: [],
+    counts: { total: 0, shown: 0, potential_wildfire: 0, low_confidence: 0, unavailable: 0 },
+  };
+
+  it("keeps showing risk areas when the detections feed fails", async () => {
+    fetchRiskAreas.mockResolvedValue({ source: "supabase", data: [mockArea] });
+    fetchDetections.mockRejectedValue(new Error("Failed to fetch detections: 503"));
+
+    render(<App />);
+
+    expect(await screen.findByText(/Detections unavailable:/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Select area at 43.6532, -79.3832" }))
+      .toBeInTheDocument();
+    expect(screen.queryByText(/Risk data unavailable:/)).not.toBeInTheDocument();
+  });
+
+  it("keeps showing detections when the risk feed fails, without inventing risk areas", async () => {
+    fetchRiskAreas.mockRejectedValue(new Error("Failed to fetch risk data: 503"));
+    fetchDetections.mockResolvedValue({
+      threshold: 20,
+      detections: [{ id: 1, latitude: 50.1, longitude: -120.3, timestamp: "2026-10-01T18:30:00Z",
+        confidence: 80, classification: "potential_wildfire", meets_threshold: true }],
+      counts: { total: 1, shown: 1, potential_wildfire: 1, low_confidence: 0, unavailable: 0 },
+    });
+
+    render(<App />);
+
+    expect(await screen.findByText(/Risk data unavailable:/)).toBeInTheDocument();
+    await userEvent.setup().click(await screen.findByRole("button", { name: /Data dates & details/ }));
+    expect(await screen.findByText(/1 detection shown/)).toBeInTheDocument();
+    expect(screen.getByText("Potential wildfire", { selector: "strong" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Select area at 43.6532, -79.3832" })).not.toBeInTheDocument();
+  });
+
+  it("shows both unavailable states, and Report a Fire still opens, when both feeds fail", async () => {
+    const user = userEvent.setup();
+    fetchRiskAreas.mockRejectedValue(new RequestTimeoutError(15000));
+    fetchDetections.mockRejectedValue(new TypeError("Failed to fetch"));
+
+    render(<App />);
+
+    expect(await screen.findByText(/Risk data unavailable:/)).toHaveTextContent("took too long");
+    expect(await screen.findByText(/Detections unavailable:/)).toHaveTextContent("Can't reach the server");
+    expect(screen.queryByText(/detections shown/)).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /Report a fire/i }));
+    expect(screen.getByRole("dialog", { name: "Report a fire" })).toBeInTheDocument();
+  });
+
+  it("shows a recovery message instead of a blank page when rendering crashes", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    // The service is mocked here, so this malformed entry skips the API-layer sanitiser.
+    fetchRiskAreas.mockResolvedValue({ source: "supabase", data: [null] });
+    fetchDetections.mockResolvedValue(emptyDetections);
+
+    render(<App />);
+
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent(/page could not be displayed/);
+    expect(within(alert).getByRole("button", { name: "Try again" })).toBeInTheDocument();
+    consoleError.mockRestore();
+  });
+
+  it("keeps the rest of the page usable when the map section crashes while rendering", async () => {
+    const user = userEvent.setup();
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    mapFailure.explode = true;
+    fetchRiskAreas.mockResolvedValue({ source: "supabase", data: [mockArea] });
+    fetchDetections.mockRejectedValue(new TypeError("Failed to fetch"));
+
+    render(<App />);
+
+    // Only the map and details are replaced, with a retry button.
+    // (Re-queried each time: the boundary retries when new data arrives, which replaces the element.)
+    await screen.findByText(/map and details could not be displayed/i);
+    const mapAlert = () => screen.getByText(/map and details could not be displayed/i).closest('[role="alert"]');
+    expect(mapAlert()).toHaveTextContent("The rest of the page still works.");
+    expect(within(mapAlert()).getByRole("button", { name: "Try again" })).toBeInTheDocument();
+    expect(screen.queryByText(/The page could not be displayed/)).not.toBeInTheDocument();
+    const dashboardMap = () => screen.queryAllByTestId("map").find((el) => el.dataset.zoom === "6");
+    expect(dashboardMap()).toBeUndefined();
+
+    // Status messages and Report a fire are still on the page and working.
+    expect(await screen.findByText(/Detections unavailable:/)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /Report a fire/i }));
+    expect(screen.getByRole("dialog", { name: "Report a fire" })).toBeInTheDocument();
+
+    // Once the map works again, "Try again" brings it back.
+    mapFailure.explode = false;
+    await user.click(within(mapAlert()).getByRole("button", { name: "Try again" }));
+    await waitFor(() => expect(dashboardMap()).toBeDefined());
+    expect(screen.queryByText(/map and details could not be displayed/i)).not.toBeInTheDocument();
+    consoleError.mockRestore();
+  });
+});
+
+describe("Weather observation time (#49)", () => {
+  it("says so when an area has no weather observation, instead of showing nothing", async () => {
+    const user = userEvent.setup();
+    fetchDetections.mockResolvedValue({
+      threshold: 20, detections: [],
+      counts: { total: 0, shown: 0, potential_wildfire: 0, low_confidence: 0, unavailable: 0 },
+    });
+    fetchRiskAreas.mockResolvedValue({
+      source: "supabase",
+      data: [{ ...mockArea, observed_at: null }],
+    });
+
+    render(<App />);
+
+    await user.click(await screen.findByRole("button", { name: "Select area at 43.6532, -79.3832" }));
+    expect(screen.getByText("Weather observation time unavailable")).toBeInTheDocument();
+    expect(screen.queryByText(/Weather observed/)).not.toBeInTheDocument();
   });
 });

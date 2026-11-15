@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import "./prototype.css";
 import { fetchRiskAreas } from "./services/riskApi";
 import ReportFire from "./components/ReportFire";
+import ErrorBoundary from "./components/ErrorBoundary";
 import { REPORTS_ENABLED } from "./services/reportApi";
 import { fetchDetections } from "./services/detectionApi";
 import { describeLoadError } from "./utils/loadError";
@@ -23,6 +24,7 @@ import {
   riskColor,
   riskState,
   riskStatusText,
+  weatherObservedText,
 } from "./utils/riskFormat";
 import { MapContainer, TileLayer, CircleMarker, Circle, Marker, Popup, Tooltip, useMap } from "react-leaflet";
 import { divIcon } from "leaflet";
@@ -97,7 +99,7 @@ function RefreshMapLayout({ active, hasSelection }) {
   return null;
 }
 
-function App() {
+function AppContent() {
   const [riskAreas, setRiskAreas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -410,6 +412,9 @@ function App() {
         </div>
       )}
 
+      {/* #49: a rendering error in the map or details panel is contained here, so the
+          status messages, search and Report a fire stay usable. */}
+      <ErrorBoundary label="map and details" resetKeys={[riskAreas, detectionResult]}>
       <div className="ew-workspace ew-map-first">
         <div className="ew-ember-field" aria-hidden="true"><i /><i /><i /><i /><i /><i /><i /><i /></div>
         <div className="ew-map-column"><div className="ew-map-title"><span className="ew-map-title-dot" /> MAP <span className="ew-map-title-caption">Explore locations and satellite observations</span></div><div className="ew-map-frame">
@@ -590,7 +595,7 @@ function App() {
                 <hr />
 
               <div className="ew-assessment-summary">
-                {selectedArea.observed_at && <p>Weather observed {formatDetectionTime(selectedArea.observed_at)}</p>}
+                <p>{weatherObservedText(selectedArea)}</p>
                 <p>{selectedArea.is_complete ? "All modeled inputs available" : `Partial assessment · ${Math.round((selectedArea.coverage ?? 0) * 100)}% input coverage`}</p>
               </div>
               <details className="ew-factor-disclosure">
@@ -622,9 +627,22 @@ function App() {
             </>
           )}
         </div></aside></div>
-      </div></div></main>
+      </div>
+      </ErrorBoundary>
+      </div></main>
       <AshDetective areas={riskAreas} detections={detectionResult?.detections ?? []} selectedArea={selectedArea} searchedPlace={searchedPlace} />
     </div>
+  );
+}
+
+// #49: last-resort boundary for errors outside the map/details section (for
+// example a risk record the API layer did not catch), so the page is never blank.
+// The map and details have their own boundary inside AppContent.
+function App() {
+  return (
+    <ErrorBoundary label="page" note="Reloading the page may help.">
+      <AppContent />
+    </ErrorBoundary>
   );
 }
 
