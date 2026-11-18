@@ -1,0 +1,144 @@
+import { formatDetectionTime } from "./detectionFormat";
+
+// #28: wording and styling helpers for risk areas, so an incomplete or
+// unscored assessment never looks the same as a complete one.
+// Kept out of App.jsx so they can be unit tested without a browser.
+
+export const RISK_COLORS = {
+  HIGH: "#dc2626",
+  MODERATE: "#f97316",
+  LOW: "#16a34a",
+};
+export const UNAVAILABLE_COLOR = "#6b7280";
+
+export const FACTOR_LABELS = {
+  temperature_c: "Temperature",
+  relative_humidity_pct: "Relative Humidity",
+  wind_speed_kmh: "Wind Speed",
+  precipitation_mm: "Precipitation",
+  vegetation_index: "Vegetation Index",
+  slope_deg: "Slope",
+  nearby_detections: "Nearby Fire Detections",
+};
+
+// Three states, each drawn differently on the map.
+export function validRiskScore(area) {
+  return typeof area?.risk_score === "number"
+    && Number.isFinite(area.risk_score)
+    && area.risk_score >= 0
+    && area.risk_score <= 100
+    && ["LOW", "MODERATE", "HIGH"].includes(area.risk_level);
+}
+
+export function riskState(area) {
+  if (!validRiskScore(area)) return "unavailable"; // too few inputs to score at all
+  if (area.is_complete === false) return "incomplete"; // scored, but some inputs missing
+  return "complete";
+}
+
+export function riskColor(area) {
+  return validRiskScore(area) ? RISK_COLORS[area.risk_level] : UNAVAILABLE_COLOR;
+}
+
+// Leaflet path options. Dashed outline = incomplete; grey = no score.
+export function riskAreaStyle(area, selected = false) {
+  const state = riskState(area);
+  const color = riskColor(area);
+  return {
+    color,
+    fillColor: color,
+    fillOpacity: state === "unavailable" ? 0.15 : selected ? 0.8 : 0.5,
+    weight: selected ? 4 : 2,
+    dashArray: state === "complete" ? null : "8 6",
+    radius: selected ? 16 : 13,
+  };
+}
+
+export function missingInputNames(area) {
+  return (area?.missing_inputs ?? []).map((key) => FACTOR_LABELS[key] ?? key);
+}
+
+// Short text for screen readers, tooltips and the details panel.
+export function riskStatusText(area) {
+  const state = riskState(area);
+  // #26: the backend couldn't run the model for this area, which is different
+  // from the area simply having too few inputs.
+  if (area?.processing_error) {
+    return "Risk unavailable: the score could not be calculated for this area.";
+  }
+  if (state === "unavailable") {
+    return "Risk unavailable: not enough input data to calculate a score.";
+  }
+  if (state === "incomplete") {
+    const missing = missingInputNames(area);
+    return `${area.risk_level} risk (incomplete${missing.length ? `: missing ${missing.join(", ")}` : ""}).`;
+  }
+  return `${area.risk_level} risk (all inputs available).`;
+}
+
+// [lat, lon] pairs of areas with valid coordinates, for fitting the map view.
+export function areaBounds(areas) {
+  return (areas ?? [])
+    .filter((a) => Number.isFinite(a.latitude) && Number.isFinite(a.longitude))
+    .map((a) => [a.latitude, a.longitude]);
+}
+
+// Highest risk first; areas without a valid score go last; ties by name.
+export function sortAreasByRisk(areas) {
+  return [...areas].sort((a, b) => {
+    const sa = validRiskScore(a) ? a.risk_score : -1;
+    const sb = validRiskScore(b) ? b.risk_score : -1;
+    if (sb !== sa) return sb - sa;
+    return String(a.name ?? "").localeCompare(String(b.name ?? ""));
+  });
+}
+
+// #49: a risk area can only be drawn if it has an id and a real location.
+// Anything else is left out and counted, instead of crashing the whole map.
+export function isDisplayableRiskArea(area) {
+  return (
+    area !== null &&
+    typeof area === "object" &&
+    !Array.isArray(area) &&
+    area.id !== null &&
+    area.id !== undefined &&
+    Number.isFinite(area.latitude) &&
+    Number.isFinite(area.longitude) &&
+    Math.abs(area.latitude) <= 90 &&
+    Math.abs(area.longitude) <= 180
+  );
+}
+
+// Second line of defence after the backend's own checks (same idea as
+// sanitizeDetections). Adds an "area_unreadable" warning when records were dropped.
+export function sanitizeRiskAreas(result) {
+  const data = result.data.filter(isDisplayableRiskArea);
+  const dropped = result.data.length - data.length;
+  if (dropped === 0) return result;
+
+  const warnings = Array.isArray(result.warnings) ? result.warnings : [];
+  return {
+    ...result,
+    data,
+    warnings: [
+      ...warnings,
+      {
+        code: "area_unreadable",
+        count: dropped,
+        message: `${dropped} area(s) were left out because their data could not be read.`,
+      },
+    ],
+  };
+}
+
+// #49: when the area's weather was observed, or an explicit "unavailable" if
+// there is no readable time (never a blank line, and never the 1970 epoch that
+// new Date(null) would give).
+export function weatherObservedText(area) {
+  const value = area?.observed_at;
+  const readable =
+    value !== null && value !== undefined && value !== "" && !Number.isNaN(new Date(value).getTime());
+  return readable
+    ? `Weather observed ${formatDetectionTime(value)}`
+    : "Weather observation time unavailable";
+}
